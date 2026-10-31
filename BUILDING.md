@@ -19,6 +19,11 @@ folder; adds Start menu and desktop shortcuts; uninstalls from Settings › Apps
 
 ## macOS (on a Mac, or with GitHub Actions)
 
+> **Paused (2026-10-31):** releases are Windows-only for now. The Mac jobs in `.github/workflows/build.yml` only run
+> when the repository variable `BUILD_MAC` is `true`; while it isn't, each release carries a placeholder
+> `latest-mac.yml` (version 1.0.0), so installed Mac copies stay on the version they have and report "up to date".
+> The Mac downloads were removed from releases 1.0.0–1.0.9. To resume: set `BUILD_MAC` to `true` and tag a release.
+
 A Mac app has to be built on a Mac. On a Mac, run the same steps with `npm run dist:mac` at the end. Result:
 `app/release/FM-Skin-Studio-<version>-arm64.dmg` (Apple Silicon) or `-x64.dmg` (Intel; build on an Intel Mac or the
 `macos-13` runner).
