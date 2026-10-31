@@ -1,0 +1,113 @@
+{
+  "name": "fm-skin-studio",
+  "productName": "FM Skin Studio",
+  "version": "1.0.0",
+  "description": "Build Football Manager 27 skin packs: colours, bars, backgrounds, fonts and panel layouts.",
+  "private": true,
+  "main": "electron/main.cjs",
+  "scripts": {
+    "dev:web": "vite --port 5174 --strictPort",
+    "dev:core": "python -m fmskin.cli rpc-http --port 8765",
+    "build:web": "tsc --noEmit && vite build",
+    "start": "electron .",
+    "typecheck": "tsc --noEmit",
+    "build:core": "cd ../core && python -m PyInstaller --noconfirm --distpath pkg --workpath build packaging/fmskin-core.spec",
+    "dist:win": "npm run build:web && electron-builder --win --publish never",
+    "dist:mac": "npm run build:web && electron-builder --mac --publish never"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "@vitejs/plugin-react": "4.3.4",
+    "electron": "33.2.1",
+    "electron-builder": "^25.1.8",
+    "typescript": "5.6.3",
+    "vite": "5.4.11"
+  },
+  "dependencies": {
+    "electron-updater": "^6.3.9",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "allowScripts": {
+    "electron@33.2.1": true,
+    "esbuild@0.21.5": true
+  },
+  "author": "FM Skin Studio",
+  "build": {
+    "appId": "com.fmskinstudio.app",
+    "productName": "FM Skin Studio",
+    "copyright": "FM Skin Studio. Not affiliated with Sports Interactive or SEGA.",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**",
+      "electron/**",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "../core/pkg/fmskin-core",
+        "to": "core"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "FM Skin Studio",
+      "artifactName": "FM-Skin-Studio-Setup-${version}.${ext}",
+      "uninstallDisplayName": "FM Skin Studio",
+      "deleteAppDataOnUninstall": false
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg"
+        },
+        {
+          "target": "zip"
+        }
+      ],
+      "icon": "build/icon.png",
+      "category": "public.app-category.graphics-design",
+      "artifactName": "FM-Skin-Studio-${version}-${arch}.${ext}",
+      "hardenedRuntime": true
+    },
+    "dmg": {
+      "title": "FM Skin Studio ${version}"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "CCman29",
+        "repo": "fm-skin-studio",
+        "releaseType": "release"
+      }
+    ],
+    "appx": {
+      "identityName": "REPLACE_WITH_PARTNER_CENTER_PACKAGE_NAME",
+      "publisher": "CN=REPLACE_WITH_PARTNER_CENTER_PUBLISHER_ID",
+      "publisherDisplayName": "REPLACE_WITH_PUBLISHER_DISPLAY_NAME",
+      "displayName": "FM Skin Studio",
+      "applicationId": "FMSkinStudio",
+      "backgroundColor": "#07122a"
+    }
+  },
+  "repository": "https://github.com/CCman29/fm-skin-studio"
+}

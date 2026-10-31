@@ -1,0 +1,13 @@
+# build outputs (recreated by BUILDING.md)
+app/node_modules/
+app/dist/
+app/release/
+core/build/
+core/dist/
+core/pkg/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+app/scripts/diag.txt
+app/.claude/
+.claude/

@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fmskin"
+version = "0.1.0"
+description = "Core engine for FM Skin Studio: reads FM27 theme/layout data from a local install and builds skin packs."
+requires-python = ">=3.11"
+dependencies = ["UnityPy>=1.25", "Pillow>=10"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[project.scripts]
+fmskin = "fmskin.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+fmskin = ["fonts/*.ttf", "fonts/*.json", "fonts/licenses/*.txt"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["game: needs a local FM27 install (skipped when not found)"]

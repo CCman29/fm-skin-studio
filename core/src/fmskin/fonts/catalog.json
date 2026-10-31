@@ -1,0 +1,209 @@
+{
+ "defaults": {
+  "body": "ABC Social",
+  "condensed": "ABC Social Condensed",
+  "headings": "FM Universe"
+ },
+ "fonts": [
+  {
+   "id": "HankenGrotesk",
+   "family": "Hanken Grotesk",
+   "role": "body",
+   "file": "HankenGrotesk-Regular.ttf",
+   "license": "SIL Open Font License 1.1",
+   "widthVsDefault": 1.9,
+   "lineHeightVsDefault": 1.5,
+   "source": "https://fonts.google.com/specimen/Hanken+Grotesk"
+  },
+  {
+   "id": "RedditSans",
+   "family": "Reddit Sans",
+   "role": "body",
+   "file": "RedditSans-Regular.ttf",
+   "license": "SIL Open Font License 1.1",
+   "widthVsDefault": 2.0,
+   "lineHeightVsDefault": 1.2,
+   "source": "https://fonts.google.com/specimen/Reddit+Sans"
+  },
+  {
+   "id": "IBMPlexSans",
+   "family": "IBM Plex Sans",
+   "role": "body",
+   "file": "IBMPlexSans-Regular.ttf",
+   "license": "SIL Open Font License 1.1",
+   "widthVsDefault": 3.4,
+   "lineHeightVsDefault": 1.2,
+   "source": "https://fonts.google.com/specimen/IBM+Plex+Sans"
+  },
+  {
+   "id": "Overpass",
+   "family": "Overpass",
+   "role": "body",
+   "file": "Overpass-Regular.ttf",
+   "license": "SIL Open Font License 1.1",
+   "widthVsDefault": 3.6,
+   "lineHeightVsDefault": -1.4,
+   "source": "https://fonts.google.com/specimen/Overpass"
+  },
+  {
+   "id": "RedHatText",
+   "family": "Red Hat Text",
+   "role": "body",
+   "file": "RedHatText-Regular.ttf",
+   "license": "SIL Open Font License 1.1",
+   "widthVsDefault": 3.7,
+   "lineHeightVsDefault": 3.0,
+   "source": "https://fonts.google.com/specimen/Red+Hat+Text"
+  },
+  {
+   "id": "DMSans",
+   "family": "DM Sans",
+   "role": "body",
+   "file": "DMSans-Regular.ttf",
+   "license": "SIL Open Font License 1.1",
+   "widthVsDefault": 5.2,
+   "lineHeightVsDefault": 1.4,
+   "source": "https://fonts.google.com/specimen/DM+Sans"
+  },
+  {
+   "id": "Outfit",
+   "family": "Outfit",
+   "role": "body",
+   "file": "Outfit-Regular.ttf",
+   "license": "SIL Open Font License 1.1",
+   "widthVsDefault": 2.3,
+   "lineHeightVsDefault": -1.9,
+   "source": "https://fonts.google.com/specimen/Outfit"
+  },
+  {
+   "id": "Exo2",
+   "family": "Exo 2",
+   "role": "body",
+   "file": "Exo2-Regular.ttf",
+   "license": "SIL Open Font License 1.1",
+   "widthVsDefault": 2.5,
+   "lineHeightVsDefault": -6.5,
+   "source": "https://fonts.google.com/specimen/Exo+2"
+  },
+  {
+   "id": "ArchivoNarrow",
+   "family": "Archivo Narrow",
+   "role": "condensed",
+   "file": "ArchivoNarrow-Regular.ttf",
+   "license": "SIL Open Font License 1.1",
+   "widthVsDefault": 0.6,
+   "lineHeightVsDefault": 4.9,
+   "source": "https://fonts.google.com/specimen/Archivo+Narrow"
+  },
+  {
+   "id": "FiraSansExtraCondensed",
+   "family": "Fira Sans Extra Condensed",
+   "role": "condensed",
+   "file": "FiraSansExtraCondensed-Regular.ttf",
+   "license": "SIL Open Font License 1.1",
+   "widthVsDefault": -1.1,
+   "lineHeightVsDefault": -6.5,
+   "source": "https://fonts.google.com/specimen/Fira+Sans+Extra+Condensed"
+  },
+  {
+   "id": "BarlowSemiCondensed",
+   "family": "Barlow Semi Condensed",
+   "role": "condensed",
+   "file": "BarlowSemiCondensed-Regular.ttf",
+   "license": "SIL Open Font License 1.1",
+   "widthVsDefault": 2.5,
+   "lineHeightVsDefault": -6.5,
+   "source": "https://fonts.google.com/specimen/Barlow+Semi+Condensed"
+  },
+  {
+   "id": "EncodeSansCondensed",
+   "family": "Encode Sans Condensed",
+   "role": "condensed",
+   "file": "EncodeSansCondensed-Regular.ttf",
+   "license": "SIL Open Font License 1.1",
+   "widthVsDefault": 2.5,
+   "lineHeightVsDefault": -2.6,
+   "source": "https://fonts.google.com/specimen/Encode+Sans+Condensed"
+  },
+  {
+   "id": "FjallaOne",
+   "family": "Fjalla One",
+   "role": "headings",
+   "file": "FjallaOne-Regular.ttf",
+   "license": "SIL Open Font License 1.1",
+   "widthVsDefault": -1.1,
+   "lineHeightVsDefault": -5.4,
+   "source": "https://fonts.google.com/specimen/Fjalla+One"
+  },
+  {
+   "id": "OswaldW500",
+   "family": "Oswald Medium",
+   "role": "headings",
+   "file": "Oswald-W500.ttf",
+   "license": "SIL Open Font License 1.1",
+   "widthVsDefault": 0.4,
+   "lineHeightVsDefault": 11.6,
+   "source": "https://fonts.google.com/specimen/Oswald"
+  },
+  {
+   "id": "Anton",
+   "family": "Anton",
+   "role": "headings",
+   "file": "Anton-Regular.ttf",
+   "license": "SIL Open Font License 1.1",
+   "widthVsDefault": 1.1,
+   "lineHeightVsDefault": 13.4,
+   "source": "https://fonts.google.com/specimen/Anton"
+  },
+  {
+   "id": "Antonio",
+   "family": "Antonio",
+   "role": "headings",
+   "file": "Antonio-Regular.ttf",
+   "license": "SIL Open Font License 1.1",
+   "widthVsDefault": -7.3,
+   "lineHeightVsDefault": -2.6,
+   "source": "https://fonts.google.com/specimen/Antonio"
+  },
+  {
+   "id": "BigShouldersTextW700",
+   "family": "Big Shoulders Text Bold",
+   "role": "headings",
+   "file": "BigShouldersText-W700.ttf",
+   "license": "SIL Open Font License 1.1",
+   "widthVsDefault": -5.8,
+   "lineHeightVsDefault": -9.9,
+   "source": "https://fonts.google.com/specimen/Big+Shoulders+Text"
+  },
+  {
+   "id": "Mohave",
+   "family": "Mohave",
+   "role": "headings",
+   "file": "Mohave-Regular.ttf",
+   "license": "SIL Open Font License 1.1",
+   "widthVsDefault": -5.0,
+   "lineHeightVsDefault": 4.9,
+   "source": "https://fonts.google.com/specimen/Mohave"
+  },
+  {
+   "id": "EncodeSansCondensedW600",
+   "family": "Encode Sans Condensed SemiBold",
+   "role": "headings",
+   "file": "EncodeSansCondensed-W600.ttf",
+   "license": "SIL Open Font License 1.1",
+   "widthVsDefault": 4.5,
+   "lineHeightVsDefault": -5.9,
+   "source": "https://fonts.google.com/specimen/Encode+Sans+Condensed"
+  },
+  {
+   "id": "ArchivoNarrowW600",
+   "family": "Archivo Narrow SemiBold",
+   "role": "headings",
+   "file": "ArchivoNarrow-W600.ttf",
+   "license": "SIL Open Font License 1.1",
+   "widthVsDefault": 0.2,
+   "lineHeightVsDefault": 1.4,
+   "source": "https://fonts.google.com/specimen/Archivo+Narrow"
+  }
+ ]
+}
