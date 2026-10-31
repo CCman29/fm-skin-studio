@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import type { UpdateCheck } from "../api";
 import { useUnsavedGuard } from "./UnsavedGuard";
 
@@ -15,6 +16,11 @@ export default function UpdateBadge() {
   const [version, setVersion] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState<Status>({ kind: "idle" });
+  const [installWhenReady, setInstallWhenReady] = useState(false);
+  useEffect(() => {
+    if (status.kind !== "ready" || !installWhenReady) return;
+    guard("exit").then((ok) => { if (ok) bridge?.installUpdate?.(); else setInstallWhenReady(false); });
+  }, [status, installWhenReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const apply = (r: UpdateCheck) => setStatus(
     r.state === "available" ? { kind: "available", latest: r.latest ?? "", canInstall: !!r.canInstall }
@@ -48,28 +54,40 @@ export default function UpdateBadge() {
   const hasUpdate = status.kind === "available" || status.kind === "ready";
   return (
     <div className="update-badge">
-      <button className={`version-chip ${hasUpdate ? "has-update" : ""}`} onClick={() => setOpen(!open)}
-        title="Version and updates">v{version ?? "…"}{hasUpdate && <span className="update-dot" />}</button>
-      {open && <div className="update-pop card stack">
-        <div className="row"><b className="grow">FM Skin Studio</b><span className="small muted">version {version}</span></div>
-        {status.kind === "idle" && <div className="small muted">Check whether a newer version is out.</div>}
-        {status.kind === "checking" && <div className="small">Checking…</div>}
-        {status.kind === "current" && <div className="small">You're up to date.</div>}
-        {status.kind === "dev" && <div className="small muted">Updates are checked in the installed app, not in development.</div>}
-        {status.kind === "store" && <div className="small">Opened the Microsoft Store's Downloads and updates page. The Store also
-          updates the app on its own.</div>}
-        {status.kind === "available" && <>
-          <div className="small">Version <b>{status.latest}</b> is available.</div>
-          <button className="primary" onClick={async () => { await bridge.downloadUpdate?.();
-            if (!status.canInstall) setOpen(false); }}>{status.canInstall ? "Download update" : "Download from GitHub"}</button></>}
-        {status.kind === "downloading" && <><div className="small">Downloading… {status.percent}%</div>
-          <div className="progress"><div style={{ width: `${status.percent}%` }} /></div></>}
-        {status.kind === "ready" && <>
-          <div className="small">Version <b>{status.version}</b> is ready. The app restarts to finish installing it.</div>
-          <button className="primary" onClick={async () => { if (await guard("exit")) bridge.installUpdate?.(); }}>Restart and update</button></>}
-        {status.kind === "error" && <div className="small" style={{ color: "var(--err)" }}>Couldn't check for updates: {status.message}</div>}
-        {["idle", "current", "error", "dev"].includes(status.kind) && <button onClick={check}>Check for updates</button>}
-      </div>}
+      <button className={`version-chip ${hasUpdate ? "has-update" : ""}`} title="Click to check for updates"
+        onClick={() => { setOpen(true); if (status.kind !== "downloading" && status.kind !== "ready") check(); }}>
+        v{version ?? "…"}{hasUpdate && <span className="update-dot" />}</button>
+      {open && createPortal(  // drawn over the whole window so nothing can hide it
+        <div className="modal-backdrop" onClick={(e) => { if (e.target === e.currentTarget && status.kind !== "downloading") setOpen(false); }}>
+          <div className="modal card stack" role="dialog" aria-modal="true">
+            <h2 style={{ margin: 0 }}>Updates</h2>
+            {(status.kind === "checking" || status.kind === "idle") && <div>Checking for a new version…</div>}
+            {status.kind === "current" && <div>Version {version} is up to date.</div>}
+            {status.kind === "dev" && <div className="muted">Updates are checked in the installed app, not in development.</div>}
+            {status.kind === "store" && <div>Opened the Microsoft Store's Downloads and updates page. The Store also updates the app on its own.</div>}
+            {status.kind === "available" && <div>Version <b>{status.latest}</b> is available (you have {version}).
+              {status.canInstall ? " Install it now? The app restarts to finish." : " Download it from GitHub?"}</div>}
+            {status.kind === "downloading" && <><div>Downloading version… {status.percent}%</div>
+              <div className="progress"><div style={{ width: `${status.percent}%` }} /></div></>}
+            {status.kind === "ready" && <div>{installWhenReady ? `Installing version ${status.version}. The app restarts in a moment.`
+              : `Version ${status.version} is downloaded and ready to install.`}</div>}
+            {status.kind === "error" && <div style={{ color: "var(--err)" }}>Couldn't check for updates: {status.message}</div>}
+            <div className="row">
+              {status.kind === "available" && <button className="primary" onClick={async () => {
+                if (!status.canInstall) { await bridge.downloadUpdate?.(); setOpen(false); return; }
+                setInstallWhenReady(true);
+                setStatus({ kind: "downloading", percent: 0 });
+                try { await bridge.downloadUpdate?.(); } catch (e) { setStatus({ kind: "error", message: (e as Error)?.message ?? String(e) }); }
+              }}>{status.canInstall ? "Install now" : "Download from GitHub"}</button>}
+              {status.kind === "error" && <button onClick={check}>Try again</button>}
+              {status.kind === "ready" && !installWhenReady && <button className="primary"
+                onClick={async () => { if (await guard("exit")) bridge.installUpdate?.(); }}>Restart and install</button>}
+              <span className="grow" />
+              {status.kind !== "downloading" && !(status.kind === "ready" && installWhenReady) &&
+                <button onClick={() => setOpen(false)}>{status.kind === "available" ? "Later" : "Close"}</button>}
+            </div>
+          </div>
+        </div>, document.body)}
     </div>
   );
 }
