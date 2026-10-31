@@ -127,13 +127,13 @@ export default function ScreenCanvas({ packId, layout, bars, backdrop, header, h
         {error && <div className="card small">{error}</div>}
         {!view && !error && <div className="muted small" style={{ padding: 12 }}>Drawing the screen from your game files…</div>}
         {view && <div style={{ position: "relative", height: rows * rowH }}>
-          {view.panels.map((p) => {
+          {view.panels.map((p, i) => {
             const g = gesture?.id === p.id ? gesture : null;
             const t = g ? target(p, g) : p;
             const pl = placed[p.id];
             const resizable = canEdit && !pl?.locked && (pl?.sizes?.length ?? 0) > 1;
             return (
-              <div key={p.id} className={`sc-panel ${selected === p.id ? "selected" : ""}`}
+              <div key={`${p.id}-${i}`} className={`sc-panel ${selected === p.id ? "selected" : ""}`}
                 style={{ left: p.x * cell + 4, top: p.y * rowH + 4, width: p.w * cell - 8, height: p.h * rowH - 8 }}
                 onMouseDown={() => { if (!readOnly) setSelected(p.id); }}>
                 {mode === "sample"

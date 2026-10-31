@@ -186,7 +186,7 @@ export default function Workspace({ packId, onClose }: { packId: string; onClose
             backdropImage={bars.backdrop?.mode === "image" ? bars.backdrop.source ?? null : null} onOpenTab={openTab}
             onApplied={async () => { await reloadPack(); setBars(await call<Record<string, BarSetting>>("packs.bars", { pack: packId })); refreshDraft(); }} />}
           {tab === "Advanced Editor" && <ScreenEditor theme={theme} packId={packId} bars={bars} onOpenTab={openTab} focus={focus} />}
-          {tab === "Game-painted areas" && <GamePainted packId={packId} onOpenTab={openTab} />}
+          {tab === "Game-painted areas" && <GamePainted packId={packId} onOpenTab={openTab} theme={theme} bars={bars} barImages={barImages} />}
           {tab === "Bars & backgrounds" && <Bars packId={packId} bars={bars} setBars={setBars} focus={focus} preview={preview} banner={banner}
             onDiscard={async () => setBars(await call<Record<string, BarSetting>>("packs.bars", { pack: packId }))} onArea={setBarArea} />}
           {tab === "Fonts" && fonts && <Fonts catalog={fonts} theme={theme} packId={packId} preview={preview} />}
