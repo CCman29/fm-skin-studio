@@ -164,16 +164,14 @@ export default function Workspace({ packId, onClose }: { packId: string; onClose
   return (
     <div className="app">
       <div className="topbar">
-        <button className="link" title="Back to your skins. Unsaved changes are kept; you're asked to save or discard them before opening another skin."
-          onClick={onClose}>‹ Packs</button>
-        <div className="brand">{pack?.name ?? packId}</div>
-        <button className="link small" onClick={rename}>Rename</button>
-        <div className="tabs">{TABS.map((t) => <button key={t} className={t === tab ? "active" : ""} onClick={() => setTab(t)}>{t}</button>)}</div>
+        <button className="icon-btn" title="Back to your skins (unsaved changes are kept)" onClick={onClose}>←</button>
+        <button className="skin-name" title="Rename this skin" onClick={rename}>{pack?.name ?? packId}<span className="pencil">✎</span></button>
+        <nav className="tabs">{TABS.map((t) => <button key={t} className={t === tab ? "active" : ""} onClick={() => setTab(t)}>{t}</button>)}</nav>
         <div className="grow" />
-        <UpdateBadge /><ThemePicker />
         {draft?.dirty
-          ? <button className="unsaved" onClick={() => setTab("Check and Save")}>● Unsaved changes · save in Check and Save</button>
-          : <span className="muted small">{saving ? "Updating…" : "All changes saved to your skins folder"}</span>}
+          ? <button className="status-chip unsaved" title="Save in Check and Save" onClick={() => setTab("Check and Save")}>● Unsaved</button>
+          : <span className="status-chip" title="All changes are saved to your skins folder">{saving ? "Updating…" : "✓ Saved"}</span>}
+        <UpdateBadge /><ThemePicker />
         <WindowControls />
       </div>
       <div className="main">

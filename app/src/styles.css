@@ -5,7 +5,8 @@
   --warn: #f5b942; --err: #ff6b6b; --info: #6aa8ff; --radius: 8px;
   --warn-bg: #2a2310; --warn-text: #ffe3a6; --callout-bg: #10233a; --callout-line: #23476e; --scroll: #2a3850;
   --swatch-line: #ffffff33; --shadow: #0008; --brand-2: var(--accent);
-  font-family: "Segoe UI", system-ui, -apple-system, sans-serif; color: var(--text); background: var(--bg);
+  font-family: "Inter Variable", "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-feature-settings: "cv11", "ss01"; color: var(--text); background: var(--bg);
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); }
@@ -259,3 +260,22 @@ details.card > summary { cursor: pointer; list-style: revert; }
 .version-chip.has-update { color: var(--accent); border-color: var(--accent); }
 .update-dot { position: absolute; top: -2px; right: -2px; width: 9px; height: 9px; border-radius: 5px; background: var(--accent); }
 .update-pop { position: absolute; right: 0; top: calc(100% + 8px); width: 300px; z-index: 60; box-shadow: 0 12px 40px var(--shadow); padding: 14px; }
+
+/* ---- top bar: one clean line, tabs as buttons (the open tab stays highlighted) ---------------------------------- */
+.app { grid-template-rows: 48px 1fr; }
+.topbar { gap: 10px; padding: 0 12px; white-space: nowrap; overflow: hidden; }
+.topbar .grow { min-width: 8px; }
+.icon-btn { width: 30px; height: 30px; padding: 0; border-radius: 8px; font-size: 16px; line-height: 1; flex: none; }
+.skin-name { background: none; border: 1px solid transparent; font-weight: 700; font-size: 15px; padding: 4px 8px; border-radius: 8px;
+  max-width: 220px; overflow: hidden; text-overflow: ellipsis; flex: none; }
+.skin-name .pencil { margin-left: 6px; font-size: 12px; color: var(--muted); opacity: 0; transition: opacity .15s; }
+.skin-name:hover { border-color: var(--line); } .skin-name:hover .pencil { opacity: 1; }
+.tabs { display: flex; gap: 4px; padding: 3px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; flex: none; }
+.tabs button { background: none; border: none; border-radius: 7px; padding: 6px 12px; font-size: 13px; font-weight: 500; color: var(--muted);
+  white-space: nowrap; transition: background .12s, color .12s; }
+.tabs button:hover:not(.active) { color: var(--text); background: color-mix(in srgb, var(--text) 7%, transparent); }
+.tabs button.active { background: var(--accent-2); color: var(--on-accent); font-weight: 600; box-shadow: 0 1px 6px color-mix(in srgb, var(--accent-2) 45%, transparent); }
+.status-chip { font-size: 12px; padding: 4px 10px; border-radius: 99px; color: var(--muted); border: 1px solid var(--line); background: var(--panel); flex: none; }
+.status-chip.unsaved { color: var(--warn); border-color: var(--warn); background: var(--warn-bg); }
+.theme-picker select { max-width: 150px; }
+.update-badge, .theme-picker, .win-controls { flex: none; }

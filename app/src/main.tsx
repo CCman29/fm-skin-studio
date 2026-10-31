@@ -1,6 +1,7 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
+import "@fontsource-variable/inter";  // bundled, so the app looks the same on every PC and Mac
 import "./styles.css";
 import { applyTheme, savedTheme } from "./theme";
 
