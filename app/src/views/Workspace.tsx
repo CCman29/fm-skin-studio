@@ -138,6 +138,7 @@ export default function Workspace({ packId, onClose }: { packId: string; onClose
   const [fieldTokens, setFieldTokens] = useState<Record<string, string[]>>({});
   useEffect(() => { call<Record<string, string[]>>("recipe.fields").then(setFieldTokens).catch(() => {}); }, []);
   const [hoverField, setHoverField] = useState<string | null>(null);
+  const [barArea, setBarArea] = useState<string | null>(null);  // Bars & backgrounds: the area being edited
   const AREA_OF: Record<string, string> = { top_bar: "topBar", sub_bar: "subBar", page_header: "pageHeader", backdrop: "backdrop",
     continue_colour: "continue" };
   const hoverTokens = hoverField ? fieldTokens[hoverField] ?? [] : [];
@@ -157,7 +158,8 @@ export default function Workspace({ packId, onClose }: { packId: string; onClose
     <div className="stack" style={{ gap: 8 }}>
       <div className="small muted">Preview: the Home screen with your changes. It updates as you make them.</div>
       <ScreenCanvas packId={packId} layout="Portal-Large" bars={trial ? { ...bars, ...trial.bars } : bars} backdrop={backdrop} images={barImages}
-        highlightTokens={tab === "Global settings" ? hoverTokens : []} highlightAreas={tab === "Global settings" ? hoverAreas : []} />
+        header={tab === "Bars & backgrounds"} highlightTokens={tab === "Global settings" ? hoverTokens : []}
+        highlightAreas={tab === "Global settings" ? hoverAreas : tab === "Bars & backgrounds" && barArea ? [barArea] : []} />
     </div>);
 
 
@@ -184,7 +186,7 @@ export default function Workspace({ packId, onClose }: { packId: string; onClose
           {tab === "Advanced Editor" && <ScreenEditor theme={theme} packId={packId} bars={bars} onOpenTab={openTab} focus={focus} />}
           {tab === "Game-painted areas" && <GamePainted packId={packId} onOpenTab={openTab} />}
           {tab === "Bars & backgrounds" && <Bars packId={packId} bars={bars} setBars={setBars} focus={focus} preview={preview} banner={banner}
-            onDiscard={async () => setBars(await call<Record<string, BarSetting>>("packs.bars", { pack: packId }))} />}
+            onDiscard={async () => setBars(await call<Record<string, BarSetting>>("packs.bars", { pack: packId }))} onArea={setBarArea} />}
           {tab === "Fonts" && fonts && <Fonts catalog={fonts} theme={theme} packId={packId} preview={preview} />}
           {SHOW_LAYOUTS_TAB && tab === "Screens & layouts" && <Screens packId={packId} onChanged={reloadPack} target={screenTarget} />}
           {tab === "Check and Save" && <Publish pack={pack} draft={draft} onChanged={async () => {

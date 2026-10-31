@@ -19,15 +19,19 @@ function swatch(s: BarSetting | undefined): string {
 }
 
 /** Bars & backgrounds: pick an area, set how it's drawn; the preview follows live. Apply stores it as an unsaved change. */
-export default function Bars({ packId, bars, setBars, focus, preview, banner, onDiscard }: {
+export default function Bars({ packId, bars, setBars, focus, preview, banner, onDiscard, onArea }: {
   packId: string; bars: Record<string, BarSetting>; setBars: (b: Record<string, BarSetting>) => void;
   focus: string | null; preview?: ReactNode; banner?: ReactNode; onDiscard: () => void;
+  onArea?: (area: string | null) => void;  // the area being edited (or pointed at), lit up in the preview
 }) {
   const toast = useToast();
   const [draft, setDraft] = useState<Record<string, BarSetting>>(bars);
   const [area, setArea] = useState(focus && AREAS.some(([a]) => a === focus) ? focus : "topBar");
   const [busy, setBusy] = useState(false);
   const dirty = useRef(false);
+  const [hovered, setHovered] = useState<string | null>(null);
+  useEffect(() => { onArea?.(hovered ?? area); }, [area, hovered]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => () => onArea?.(null), []); // eslint-disable-line react-hooks/exhaustive-deps
   // leaving without applying drops the trial settings, so the preview elsewhere shows the skin as it is
   useEffect(() => () => { if (dirty.current) onDiscard(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -62,7 +66,8 @@ export default function Bars({ packId, bars, setBars, focus, preview, banner, on
           <summary>Area</summary>
           <div className="body">
             <div className="tiles">{AREAS.map(([a, name, hint]) => (
-              <button key={a} className={`tile ${area === a ? "active" : ""}`} title={hint} onClick={() => setArea(a)}>
+              <button key={a} className={`tile ${area === a ? "active" : ""}`} title={hint} onClick={() => setArea(a)}
+                onMouseEnter={() => setHovered(a)} onMouseLeave={() => setHovered(null)}>
                 <span style={{ height: 22, borderRadius: 4, background: swatch(draft[a]), border: "1px solid var(--swatch-line)" }} />
                 <span className="tile-label">{name}</span>
                 <span className="tile-sub">{MODES.find(([m]) => m === (draft[a]?.mode ?? "club"))?.[1]}</span>
