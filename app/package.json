@@ -1,7 +1,7 @@
 {
   "name": "fm-skin-studio",
   "productName": "FM Skin Studio",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Build Football Manager 27 skin packs: colours, bars, backgrounds, fonts and panel layouts.",
   "private": true,
   "main": "electron/main.cjs",
