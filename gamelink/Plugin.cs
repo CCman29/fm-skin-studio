@@ -21,7 +21,7 @@ using UnityEngine.UIElements;
 
 namespace FMSkinStudio.GameLink
 {
-    [BepInPlugin("com.matergames.fmskinstudio.gamelink", "FM Skin Studio Game Link", "1.1.0")]
+    [BepInPlugin("com.matergames.fmskinstudio.gamelink", "FM Skin Studio Game Link", "1.2.0")]
     public class Plugin : BasePlugin
     {
         internal static ManualLogSource L;
@@ -40,7 +40,7 @@ namespace FMSkinStudio.GameLink
     public class Pump : MonoBehaviour
     {
         public Pump(IntPtr ptr) : base(ptr) { }
-        private void Update() { Server.RunQueued(); SkinFollower.Tick(Time.realtimeSinceStartup); }
+        private void Update() { Server.RunQueued(); SkinFollower.Tick(Time.realtimeSinceStartup); Inspector.Tick(); }
     }
 
     internal static class Server
@@ -112,7 +112,7 @@ namespace FMSkinStudio.GameLink
             switch (command)
             {
                 case "ping":
-                    return new { ok = true, plugin = "1.1.0", game = Application.version, unity = Application.unityVersion,
+                    return new { ok = true, plugin = "1.2.0", game = Application.version, unity = Application.unityVersion,
                         width = Screen.width, height = Screen.height, skin = SkinFollower.ActiveSkin, nameColour = SkinFollower.NameColour };
                 case "screen":  // disabled: walking the UI while FM rebuilds it (e.g. loading a save) can close the game
                     return new { error = "Screen reading is turned off in this version" };
@@ -121,6 +121,24 @@ namespace FMSkinStudio.GameLink
                     if (string.IsNullOrEmpty(file)) return new { error = "No path" };
                     ScreenCapture.CaptureScreenshot(file);  // written at the end of this frame
                     return new { ok = true, path = file };
+                case "inspectOn":
+                    return Inspector.On();
+                case "inspectOff":
+                    return Inspector.Off();
+                case "inspectAfter":
+                    return Inspector.After(req.TryGetValue("seconds", out var sec) ? (float)sec.GetDouble() : 6f);
+                case "inspectResults":
+                    return Inspector.Results(req.TryGetValue("clear", out var cl) && cl.ValueKind == JsonValueKind.True);
+                case "nameStyles":
+                    return NameStyles.List();
+                case "setNameStyles":
+                {
+                    var hex = req.TryGetValue("colour", out var hc) ? hc.GetString() : null;
+                    if (hex == null || !ColorUtility.TryParseHtmlString(hex, out var col)) return new { error = "Give a colour like #0b1f4b" };
+                    return new { changed = NameStyles.Apply(col) };
+                }
+                case "restoreNameStyles":
+                    return new { restored = NameStyles.Restore() };
                 case "textStyles":
                     return TextStyles.List();
                 case "setTextStyle":

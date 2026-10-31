@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using UnityEngine;
 
 namespace FMSkinStudio.GameLink
 {
@@ -37,10 +38,13 @@ namespace FMSkinStudio.GameLink
                 var colour = marker != null && File.Exists(marker) ? ReadColour(marker) : null;
                 if (colour != null)
                 {
-                    if (TextStyles.Apply("Norml", $"<color={colour}>") == 0) { s_skinKey = null; return; }  // styles not loaded yet: retry
+                    // names: FM's style for clickable names, plus its own name colours (which also colour the words around
+                    // names); the second keeps your club's and other managers' colours
+                    if (TextStyles.Apply("Norml", $"<color={colour}>") == 0) { s_skinKey = null; return; }  // not loaded yet: retry
+                    if (ColorUtility.TryParseHtmlString(colour, out var c)) NameStyles.Apply(c);
                     NameColour = colour;  // names drawn from now on use it; ones already on screen update when redrawn
                 }
-                else if (NameColour != null) { TextStyles.Restore(); NameColour = null; }
+                else if (NameColour != null) { TextStyles.Restore(); NameStyles.Restore(); NameColour = null; }
                 Plugin.L.LogInfo($"Skin '{ActiveSkin}': name colour {(colour ?? "game default")}");
             }
             catch (Exception e) { Plugin.L.LogWarning("Skin check failed: " + e.Message); s_next = now + 30f; }

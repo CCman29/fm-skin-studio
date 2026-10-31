@@ -71,3 +71,8 @@ in CI. Build it on a PC with FM27:
 
 Never commit `gamelink/bin`, `gamelink/obj` or anything from the game's `BepInEx/interop` folder: they're derived from
 Unity's and Sports Interactive's code.
+
+For skin authors, the plugin also has an inspector (off unless the studio turns it on with the `inspectOn` command):
+Ctrl+F12 in FM27 records the element under the pointer and the few stacked under it (type, classes, colours), and
+`inspectAfter` records after a delay, for menus a key press would close. Results come back with `inspectResults`.
+
