@@ -70,7 +70,7 @@ export default function Home({ onOpen }: { onOpen: (id: string) => void }) {
   return (
     <div className="app">
       <div className="topbar"><img src="./icon.png" alt="" className="brand-icon" /><div className="brand">FM <span>Skin Studio</span></div>
-        <div className="top-right"><UpdateBadge /><ThemePicker /><ExitButton /><WindowControls /></div></div>
+        <div className="top-right roomy"><UpdateBadge /><ThemePicker /><ExitButton /><WindowControls /></div></div>
       <div className="main">
         {coreDown && <div className="card" style={{ marginBottom: 16, borderColor: "var(--err)" }}>
           The engine isn't responding. {window.fmskin ? "Restart the app." : "Start it with: npm run dev:core"}</div>}
