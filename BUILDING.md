@@ -33,9 +33,10 @@ run's Artifacts.
 1. Raise `"version"` in `app/package.json` (for example 1.0.1) and commit.
 2. Tag and push: `git tag -a v1.0.1 -m "FM Skin Studio 1.0.1"` then `git push origin main v1.0.1`.
 3. GitHub builds Windows, Apple Silicon and Intel installers and publishes them as the release `v1.0.1`.
-4. Installed copies see it: the version chip in the top bar shows a dot, and **Check for updates** offers
-   **Download update › Restart and update** (Windows). On macOS it opens the release page to download the new .dmg
-   (an unsigned Mac app can't replace itself). Microsoft Store copies are updated by the Store.
+4. Installed copies see it: the version chip in the top bar shows a dot. Clicking the chip checks straight away and
+   offers **Install now**: the app closes, installs the new version and reopens. Windows runs the new installer silently;
+   macOS downloads the release's .zip for that Mac's chip and swaps the app in place (if the app's folder can't be
+   written without admin rights, it opens the release page instead). Microsoft Store copies are updated by the Store.
 
 To withdraw a bad release, delete it and its tag on GitHub; installed copies then see the previous release as latest.
 Support/test hook: `"FM Skin Studio.exe" --update-now` checks, downloads and installs an update without the window.

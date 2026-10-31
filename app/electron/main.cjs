@@ -70,22 +70,76 @@ ipcMain.on("app:set-unsaved", (_e, value) => { hasUnsaved = !!value; });
 ipcMain.on("app:close-now", () => { closeApproved = true; win?.close(); });
 
 // ---- updates --------------------------------------------------------------------------------------------------
-// Microsoft Store copies: the Store installs updates itself; the button opens its Downloads and updates page.
-// Direct downloads: electron-updater reads the releases published on GitHub (see "publish" in package.json).
-// macOS: an unsigned app can't replace itself, so a new version is downloaded from the release page instead.
+// Every update closes the app, installs the new version and reopens it.
+//   Windows: electron-updater downloads the new installer from the GitHub release and runs it silently, then relaunches.
+//   macOS: Apple's updater only accepts signed apps, so the app updates itself: it downloads the release's .zip for this
+//          Mac's chip, and after quitting a small script swaps the new .app into place and reopens it.
+//   Microsoft Store copies: the Store installs updates itself; the button opens its Downloads and updates page.
 let updater = null;
+const send = (msg) => win?.webContents.send("update:event", msg);
 function getUpdater() {
   if (!updater) {
     updater = require("electron-updater").autoUpdater;
     updater.autoDownload = false;
     updater.autoInstallOnAppQuit = false;
-    updater.on("download-progress", (p) => win?.webContents.send("update:event", { type: "progress", percent: Math.round(p.percent) }));
-    updater.on("update-downloaded", (i) => win?.webContents.send("update:event", { type: "downloaded", version: i.version }));
-    updater.on("error", (e) => win?.webContents.send("update:event", { type: "error", message: String(e?.message || e) }));
+    updater.on("download-progress", (p) => send({ type: "progress", percent: Math.round(p.percent) }));
+    updater.on("update-downloaded", (i) => send({ type: "downloaded", version: i.version }));
+    updater.on("error", (e) => send({ type: "error", message: String(e?.message || e) }));
   }
   return updater;
 }
 const RELEASES_URL = "https://github.com/CCman29/fm-skin-studio/releases/latest";
+const fs = require("node:fs");
+const os = require("node:os");
+let latestVersion = null;
+let macDownloaded = null;  // { app: path of the new .app }
+
+// macOS: the .app bundle this copy runs from, and whether it can be replaced without admin rights
+function macBundle() { return path.resolve(process.execPath, "..", "..", ".."); }
+function macCanReplace() {
+  try { fs.accessSync(path.dirname(macBundle()), fs.constants.W_OK); return macBundle().endsWith(".app"); } catch { return false; }
+}
+function download(url, file, onProgress) {
+  return new Promise((resolve, reject) => {
+    const https = require("node:https");
+    const get = (u, hops) => https.get(u, { headers: { "User-Agent": "FM-Skin-Studio" } }, (res) => {
+      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location && hops < 6) { res.resume(); return get(res.headers.location, hops + 1); }
+      if (res.statusCode !== 200) { res.resume(); return reject(new Error(`Download failed (${res.statusCode})`)); }
+      const total = Number(res.headers["content-length"] || 0); let got = 0;
+      const out = fs.createWriteStream(file);
+      res.on("data", (c) => { got += c.length; if (total) onProgress(Math.round((got / total) * 100)); });
+      res.pipe(out); out.on("finish", () => out.close(resolve)); out.on("error", reject);
+    }).on("error", reject);
+    get(url, 0);
+  });
+}
+async function macDownload(version) {
+  const name = `FM-Skin-Studio-${version}-${process.arch === "arm64" ? "arm64" : "x64"}.zip`;
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "fmskin-update-"));
+  const zip = path.join(dir, name);
+  await download(`https://github.com/CCman29/fm-skin-studio/releases/download/v${version}/${name}`, zip, (p) => send({ type: "progress", percent: p }));
+  await new Promise((resolve, reject) => spawn("/usr/bin/ditto", ["-x", "-k", zip, dir]).on("exit", (c) => c === 0 ? resolve() : reject(new Error("Couldn't unpack the update"))));
+  const appDir = fs.readdirSync(dir).find((f) => f.endsWith(".app"));
+  if (!appDir) throw new Error("The update didn't contain the app");
+  macDownloaded = { app: path.join(dir, appDir) };
+  send({ type: "downloaded", version });
+}
+function macInstallAndRelaunch() {
+  // after this process exits: replace the bundle, clear the download flag, reopen
+  const target = macBundle(), source = macDownloaded.app;
+  const script = path.join(path.dirname(source), "install.sh");
+  fs.writeFileSync(script, [
+    "#!/bin/sh",
+    `while kill -0 ${process.pid} 2>/dev/null; do sleep 0.5; done`,
+    `rm -rf "${target}.old" && mv "${target}" "${target}.old" && /usr/bin/ditto "${source}" "${target}" && rm -rf "${target}.old" || { rm -rf "${target}"; mv "${target}.old" "${target}"; }`,
+    `/usr/bin/xattr -dr com.apple.quarantine "${target}" 2>/dev/null`,
+    `/usr/bin/open "${target}"`,
+  ].join("\n"), { mode: 0o755 });
+  spawn("/bin/sh", [script], { detached: true, stdio: "ignore" }).unref();
+  closeApproved = true;
+  app.quit();
+}
+
 ipcMain.handle("app:info", () => ({ version: app.getVersion(), store: !!process.windowsStore, packaged: app.isPackaged,
   platform: process.platform }));
 ipcMain.handle("update:check", async () => {
@@ -95,28 +149,42 @@ ipcMain.handle("update:check", async () => {
   }
   if (!app.isPackaged) return { state: "dev", current: app.getVersion() };
   const r = await getUpdater().checkForUpdates();
-  const latest = r?.updateInfo?.version;
-  const available = !!latest && r.isUpdateAvailable !== false && latest !== app.getVersion();
-  return { state: available ? "available" : "current", current: app.getVersion(), latest,
-    canInstall: process.platform === "win32", releaseUrl: RELEASES_URL };
+  latestVersion = r?.updateInfo?.version ?? null;
+  const available = !!latestVersion && r.isUpdateAvailable !== false && latestVersion !== app.getVersion();
+  return { state: available ? "available" : "current", current: app.getVersion(), latest: latestVersion,
+    canInstall: process.platform === "win32" || (process.platform === "darwin" && macCanReplace()), releaseUrl: RELEASES_URL };
 });
 ipcMain.handle("update:download", async () => {
+  if (process.platform === "darwin") {
+    if (!macCanReplace()) { shell.openExternal(RELEASES_URL); return { opened: true }; }
+    macDownload(latestVersion).catch((e) => send({ type: "error", message: String(e?.message || e) }));
+    return { downloading: true };
+  }
   if (process.platform !== "win32") { shell.openExternal(RELEASES_URL); return { opened: true }; }
   await getUpdater().downloadUpdate();
   return { downloading: true };
 });
-ipcMain.on("update:install", () => { closeApproved = true; getUpdater().quitAndInstall(false, true); });
+ipcMain.on("update:install", () => {
+  closeApproved = true;
+  if (process.platform === "darwin" && macDownloaded) return macInstallAndRelaunch();
+  getUpdater().quitAndInstall(true, true);  // silent install, then reopen the app
+});
 
-// Test and support hook: "FM Skin Studio.exe --update-now" checks, downloads and installs an update without the UI.
+// Test and support hook: run the app with --update-now to check, download and install an update without the UI.
 async function updateNowFromCommandLine() {
-  if (!app.isPackaged || process.platform !== "win32" || !process.argv.includes("--update-now")) return;
+  if (!app.isPackaged || !process.argv.includes("--update-now")) return;
   const u = getUpdater();
   const r = await u.checkForUpdates();
-  if (r?.updateInfo?.version && r.updateInfo.version !== app.getVersion()) {
-    await u.downloadUpdate();
-    closeApproved = true;
-    u.quitAndInstall(true, true);
+  const v = r?.updateInfo?.version;
+  if (!v || v === app.getVersion()) return;
+  if (process.platform === "darwin") {
+    if (!macCanReplace()) return;
+    await macDownload(v);
+    return macInstallAndRelaunch();
   }
+  await u.downloadUpdate();
+  closeApproved = true;
+  u.quitAndInstall(true, true);
 }
 
 const DESIGN_WIDTH = 1440;
