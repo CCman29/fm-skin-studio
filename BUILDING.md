@@ -28,6 +28,18 @@ Without a Mac: put this folder in a GitHub repository and run **Actions › Buil
 public repositories; private repositories use free monthly minutes, and macOS minutes count 10x). Download them from the
 run's Artifacts.
 
+## Releasing an update
+
+1. Raise `"version"` in `app/package.json` (for example 1.0.1) and commit.
+2. Tag and push: `git tag -a v1.0.1 -m "FM Skin Studio 1.0.1"` then `git push origin main v1.0.1`.
+3. GitHub builds Windows, Apple Silicon and Intel installers and publishes them as the release `v1.0.1`.
+4. Installed copies see it: the version chip in the top bar shows a dot, and **Check for updates** offers
+   **Download update › Restart and update** (Windows). On macOS it opens the release page to download the new .dmg
+   (an unsigned Mac app can't replace itself). Microsoft Store copies are updated by the Store.
+
+To withdraw a bad release, delete it and its tag on GitHub; installed copies then see the previous release as latest.
+Support/test hook: `"FM Skin Studio.exe" --update-now` checks, downloads and installs an update without the window.
+
 ## Signing (optional, but removes the security warnings)
 
 Unsigned builds work, but Windows SmartScreen shows "Windows protected your PC" (users click More info › Run anyway), and
