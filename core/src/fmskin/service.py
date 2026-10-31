@@ -9,7 +9,7 @@ from pathlib import Path
 
 import re
 
-from . import __version__, bars, coded, drafts, fonts, gamedata, gamelink, index, labels, layouts, logwatch, paths, preview, recipe, screenmap, skinpack, uss, validate
+from . import __version__, bars, coded, drafts, fonts, gamedata, index, labels, layouts, logwatch, paths, preview, recipe, screenmap, skinpack, uss, validate
 from .skinpack import PackError, SkinPack
 
 
@@ -587,22 +587,6 @@ class Service:
         bars.apply(target, {k: {kk: vv for kk, vv in v.items() if kk != "label"} for k, v in settings.items()})
         return bars.current(target)
 
-    def system_text(self, pack: str) -> dict:
-        """Colours FM27 paints itself (club, team and player names). Applied in game by Game Link only."""
-        return self._pack(pack).info.get("systemText") or {}
-
-    def set_system_text(self, pack: str, names: str | None = None) -> dict:
-        if names is not None and not re.fullmatch(r"#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?", names):
-            raise PackError("Pick a colour like #1A1A1A")
-        target = self._pack(pack)
-        current = dict(target.info.get("systemText") or {})
-        if names:
-            current["names"] = names
-        else:
-            current.pop("names", None)
-        target._write_info(systemText=current or None)
-        return current
-
     def use_builtin_font(self, pack: str, font: str, role: str) -> dict:
         return fonts.use_builtin(self._pack(pack), font, role)
 
@@ -657,83 +641,6 @@ class Service:
 
     def restore_layouts(self, backup: str | None = None) -> dict:
         return layouts.restore(backup, self.backups)
-
-    # ---- Game Link (optional in-game plugin) ------------------------------------------------
-    def _game_root(self) -> Path:
-        root = self.paths.game_root
-        if not root or sys.platform != "win32":
-            raise PackError("Game Link needs FM27 installed on Windows")
-        return root
-
-    @staticmethod
-    def _plugin_dll() -> Path:
-        name = f"{gamelink.PLUGIN_DIR}.dll"
-        if getattr(sys, "frozen", False):  # packaged: resources/core/fmskin-core.exe, resources/gamelink/<dll>
-            return Path(sys.executable).resolve().parent.parent / "gamelink" / name
-        return Path(__file__).resolve().parents[3] / "gamelink" / "dist" / name
-
-    def gamelink_status(self) -> dict:
-        root = self.paths.game_root
-        return gamelink.status(root if sys.platform == "win32" else None, self._plugin_dll())
-
-    def gamelink_install(self) -> dict:
-        return gamelink.install(self._game_root(), self._plugin_dll())
-
-    def gamelink_remove(self) -> dict:
-        return gamelink.remove(self._game_root())
-
-    def gamelink_screen(self, max_nodes: int = 4000) -> dict:
-        return gamelink.request(self._game_root(), "screen", timeout=20, maxNodes=max_nodes)
-
-    def gamelink_reload(self) -> dict:
-        return gamelink.request(self._game_root(), "reloadSkin", timeout=20)
-
-    def gamelink_live(self, max_width: int = 1600) -> dict:
-        """What FM27 is showing right now, as a picture for the editor (nothing is kept)."""
-        import time
-        root = self._game_root()
-        staged = root / "BepInEx" / "cache" / f"live-{time.time_ns()}.png"
-        gamelink.request(root, "screenshot", timeout=10, path=str(staged))
-        try:
-            for _ in range(40):
-                if staged.is_file() and staged.stat().st_size:
-                    break
-                time.sleep(0.1)
-            for _ in range(10):  # the game may still be writing it
-                try:
-                    return {"image": _data_url(staged, max_width), "at": time.time()}
-                except OSError:
-                    time.sleep(0.2)
-            raise PackError("The game didn't send a picture")
-        finally:
-            try:
-                staged.unlink(missing_ok=True)
-            except OSError:
-                pass
-
-    def gamelink_screenshot(self, layout: str | None = None) -> dict:
-        """Capture the game window; with a layout, keep it as that screen's reference shot."""
-        import shutil
-        import time
-        root = self._game_root()
-        name = f"{(layout or 'game').replace('/', '_')}-{int(time.time())}.png"
-        # the game writes into its own folder: Windows redirects a Store/Game Pass game's writes to AppData elsewhere
-        staged = root / "BepInEx" / "cache" / name
-        gamelink.request(root, "screenshot", timeout=20, path=str(staged))
-        for _ in range(40):  # Unity writes the file at the end of the frame
-            if staged.is_file() and staged.stat().st_size:
-                break
-            time.sleep(0.25)
-        if not staged.is_file():
-            raise PackError("The game didn't save a screenshot")
-        time.sleep(0.5)  # let the write finish
-        folder = gamelink.studio_dir() / "shots"
-        folder.mkdir(parents=True, exist_ok=True)
-        file = folder / name
-        shutil.move(str(staged), file)
-        if layout:
-            self.set_reference_shot(layout, str(file))
-        return {"file": str(file)}
 
     # ---- game log ----------------------------------------------------------------------------
     def log_events(self, offset: int = 0) -> dict:

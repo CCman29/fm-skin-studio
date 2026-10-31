@@ -55,24 +55,3 @@ macOS refuses to open an unsigned, un-notarised app until the user allows it in 
 
 GitHub Actions secrets used when present: `CSC_LINK` (base64 .p12 or a URL) and `CSC_KEY_PASSWORD` for the signing
 certificate; `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD` and `APPLE_TEAM_ID` for macOS notarisation.
-
-## Game Link plugin (optional add-on)
-
-`gamelink/` is a small BepInEx 6 (IL2CPP) plugin that the studio can install into FM27 on request. It listens on
-127.0.0.1:47827 with a per-launch token, reloads skins, takes screenshots and applies the selected skin's name colour
-(`systemText.names` in the skin's fmskinstudio.json, via FM's text style sheet); it never touches saves or game logic.
-
-The plugin compiles against bindings BepInEx generates from the player's own game on first launch, so it can't be built
-in CI. Build it on a PC with FM27:
-
-1. Install Game Link once from the studio (Advanced Editor → Game Link), start FM27 and let BepInEx finish its first launch.
-2. `dotnet build -c Release` in `gamelink/` (set `GameDir` if FM27 isn't in `C:\XboxGames\Football Manager 27\Content`).
-3. Copy `bin/Release/net6.0/FMSkinStudio.GameLink.dll` to `gamelink/dist/` and commit it. The installer bundles that file.
-
-Never commit `gamelink/bin`, `gamelink/obj` or anything from the game's `BepInEx/interop` folder: they're derived from
-Unity's and Sports Interactive's code.
-
-For skin authors, the plugin also has an inspector (off unless the studio turns it on with the `inspectOn` command):
-Ctrl+F12 in FM27 records the element under the pointer and the few stacked under it (type, classes, colours), and
-`inspectAfter` records after a delay, for menus a key press would close. Results come back with `inspectResults`.
-

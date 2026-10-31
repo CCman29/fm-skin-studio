@@ -1,8 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { call, pickFiles, type BarSetting, type Token } from "../api";
 import { errorText, useToast } from "../App";
 import GameInfo from "../components/GameInfo";
-import GameLink, { type GameLinkStatus } from "../components/GameLink";
 import { OutlineToggle } from "../components/RealPanel";
 import ScreenCanvas from "../components/ScreenCanvas";
 import { SettingRow } from "./GlobalSettings";
@@ -30,11 +29,7 @@ export default function ScreenEditor({ theme, packId, bars, onOpenTab, focus }: 
   const [own, setOwn] = useState<Record<string, string>>({});
   const [ownImage, setOwnImage] = useState<string | null>(null);
   const [shot, setShot] = useState<string | null>(null);
-  const [view, setView] = useState<"skin" | "shot" | "both" | "live">("skin");
-  const [linked, setLinked] = useState(false);  // Game Link connected to a running FM27
-  const [live, setLive] = useState<{ image: string; at: number } | null>(null);
-  const [liveError, setLiveError] = useState<string | null>(null);
-  const autoLive = useRef(false);
+  const [view, setView] = useState<"skin" | "shot" | "both">("skin");
   const [mode, setMode] = useState<"sample" | "files">("sample");
   const [version, setVersion] = useState(0);
 
@@ -47,32 +42,6 @@ export default function ScreenEditor({ theme, packId, bars, onOpenTab, focus }: 
       .catch((e) => toast({ text: errorText(e), error: true }));
     call<string | null>("editor.shot", { layout }).then((s) => { setShot(s); if (!s) setView("skin"); }).catch(() => setShot(null));
   }, [layout]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Game Link: when FM27 is running with it, the preview defaults to a live picture of the game
-  useEffect(() => {
-    let stop = false;
-    const check = () => call<GameLinkStatus>("gamelink.status").then((st) => {
-      if (stop) return;
-      setLinked(!!st.connected);
-      if (st.connected && !autoLive.current) { autoLive.current = true; setView("live"); }
-      if (!st.connected) setView((v) => (v === "live" ? "skin" : v));
-    }).catch(() => setLinked(false));
-    check();
-    const t = setInterval(check, 10000);
-    return () => { stop = true; clearInterval(t); };
-  }, []);
-  useEffect(() => {
-    if (view !== "live") return;
-    let stop = false;
-    const grab = () => {
-      if (document.visibilityState !== "visible") return;
-      call<{ image: string; at: number }>("gamelink.live").then((r) => { if (!stop) { setLive(r); setLiveError(null); } })
-        .catch((e) => { if (!stop) setLiveError(errorText(e)); });
-    };
-    grab();
-    const t = setInterval(grab, 4000);
-    return () => { stop = true; clearInterval(t); };
-  }, [view]);
 
   // backdrop pictures: the pack's main one, and this screen's own one if the pack has it
   useEffect(() => {
@@ -196,15 +165,10 @@ export default function ScreenEditor({ theme, packId, bars, onOpenTab, focus }: 
           </div>)}
         <details className="card"><summary><b>Game and game index</b> <span className="small muted">· where FM27 was found, rebuild the index
           after a game update</span></summary><div style={{ marginTop: 12 }}><GameInfo /></div></details>
-        <details className="card"><summary><b>Game Link</b> <span className="small muted">· optional: reload your skin in FM27 and
-          capture screens straight from the game</span></summary><div style={{ marginTop: 12 }}>
-          <GameLink layout={layout} onShot={() => call<string | null>("editor.shot", { layout }).then((s) => { setShot(s); if (s) setView("both"); })} /></div></details>
       </div>
 
       <div className="sticky stack editor-right">
         <div className="tabs">
-          {linked && <button className={view === "live" ? "active" : ""} onClick={() => setView("live")}>
-            <span className="gl-dot on" style={{ display: "inline-block", width: 8, height: 8, marginRight: 6 }} />Live from FM27</button>}
           <button className={view === "skin" ? "active" : ""} onClick={() => setView("skin")}>Skin preview</button>
           {shot && <button className={view === "both" ? "active" : ""} onClick={() => setView("both")}>Side by side</button>}
           {shot && <button className={view === "shot" ? "active" : ""} onClick={() => setView("shot")}>Your screenshot</button>}
@@ -217,15 +181,8 @@ export default function ScreenEditor({ theme, packId, bars, onOpenTab, focus }: 
           it runs, so the files only hold empty frames and placeholder labels. Use it to check frames and spacing; the styled samples show colours better.</div>}
         <div className="small muted">The screen's real layout (panel positions and sizes from your game files) with sample content in this pack's colours. Click any
           part to list the settings that paint it; select a setting to outline where it appears. Drag panel edges to resize.</div>
-        {view === "live" && <>
-          <div className="small muted">What FM27 is showing right now, refreshed every few seconds. Your edits appear here after
-            you save in Check and Save (the skin reloads in the game). To find a setting by clicking a part, use the Skin preview.</div>
-          {liveError && <div className="small" style={{ color: "var(--warn)" }}>Couldn't get a picture from FM27: {liveError}</div>}
-          {live ? <img src={live.image} alt="FM27 right now" style={{ width: "100%", borderRadius: 8, border: "1px solid var(--line)" }} />
-            : <div className="muted small">Getting a picture from FM27…</div>}
-        </>}
-        {(view === "skin" || view === "both") && canvas}
-        {(view === "shot" || view === "both") && shot && <img src={shot} alt="Your FM27 screenshot" style={{ width: "100%", borderRadius: 8, border: "1px solid var(--line)" }} />}
+        {view !== "shot" && canvas}
+        {view !== "skin" && shot && <img src={shot} alt="Your FM27 screenshot" style={{ width: "100%", borderRadius: 8, border: "1px solid var(--line)" }} />}
       </div>
     </div>
     </>

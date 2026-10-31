@@ -11,7 +11,3 @@ __pycache__/
 app/scripts/diag.txt
 app/.claude/
 .claude/
-
-# Game Link: only the built plugin is committed (never the game-generated interop)
-gamelink/bin/
-gamelink/obj/
