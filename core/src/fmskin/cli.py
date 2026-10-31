@@ -42,6 +42,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("pack")
     p = sub.add_parser("restore-layouts", help="undo the last apply-layouts")
     p.add_argument("--backup")
+    sub.add_parser("gamelink-install", help="set up Game Link in FM27 (used by the Windows installer)")
     args = parser.parse_args(argv)
 
     service = Service()
@@ -81,7 +82,13 @@ def main(argv: list[str] | None = None) -> int:
             _print(service.apply_layouts(args.pack))
         elif args.cmd == "restore-layouts":
             _print(service.restore_layouts(args.backup))
+        elif args.cmd == "gamelink-install":
+            service.gamelink_install()
+            print("Game Link is set up. Start FM27 once to finish (the first launch takes a few extra minutes).")
     except ERRORS as e:
+        if args.cmd == "gamelink-install":  # the installer shows this output to the user
+            print(e.args[0] if isinstance(e, KeyError) and e.args else str(e))
+            return 2
         print(f"error: {e}", file=sys.stderr)
         return 2
     return 0

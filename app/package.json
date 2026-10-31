@@ -1,7 +1,7 @@
 {
   "name": "fm-skin-studio",
   "productName": "FM Skin Studio",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Build Football Manager 27 skin packs: colours, bars, backgrounds, fonts and panel layouts.",
   "private": true,
   "main": "electron/main.cjs",
@@ -52,6 +52,13 @@
       {
         "from": "../core/pkg/fmskin-core",
         "to": "core"
+      },
+      {
+        "from": "../gamelink/dist",
+        "to": "gamelink",
+        "filter": [
+          "*.dll"
+        ]
       }
     ],
     "win": {
@@ -74,7 +81,8 @@
       "shortcutName": "FM Skin Studio",
       "artifactName": "FM-Skin-Studio-Setup-${version}.${ext}",
       "uninstallDisplayName": "FM Skin Studio",
-      "deleteAppDataOnUninstall": false
+      "deleteAppDataOnUninstall": false,
+      "include": "build/installer.nsh"
     },
     "mac": {
       "target": [

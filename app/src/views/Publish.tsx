@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { call, pickFolder, pickSavePath, reveal, type LogEvent, type Pack, type Problem } from "../api";
 import { errorText, useToast } from "../App";
 import type { DraftStatus } from "./Workspace";
+import { reloadInGame } from "../components/GameLink";
 
 interface Backup { id: string; pack: string; created: string[]; replaced: string[] }
 
@@ -167,7 +168,8 @@ export default function Publish({ pack, draft, onChanged }: { pack: Pack; draft:
     setBusy(true);
     try {
       const r = await call<{ backup: string | null; savedTo: string }>("drafts.save", { pack: pack.id, backup: withBackup, backup_dir: dir });
-      toast(r.backup ? `Saved. Your previous version is backed up as ${r.backup}` : `Saved to ${r.savedTo}`);
+      const live = await reloadInGame();
+      toast((r.backup ? `Saved. Your previous version is backed up as ${r.backup}` : `Saved to ${r.savedTo}`) + (live ? " · reloaded in FM27" : ""));
       onChanged();
     } catch (e) { toast({ text: errorText(e), error: true }); }
     setBusy(false);

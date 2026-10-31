@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- FM Skin Studio's BepInEx plugin for FM27. Build: see BUILDING.md (needs FM27 with BepInEx run once). -->
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <AssemblyName>FMSkinStudio.GameLink</AssemblyName>
+    <RootNamespace>FMSkinStudio.GameLink</RootNamespace>
+    <Nullable>disable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <Version>1.1.0</Version>
+    <Copyright>© 2026 MaterGames</Copyright>
+    <GameDir Condition="'$(GameDir)' == ''">C:\XboxGames\Football Manager 27\Content</GameDir>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- compile-time references only (not copied): BepInEx and the bindings BepInEx generated from the user's own game -->
+    <Reference Include="$(GameDir)\BepInEx\core\BepInEx.Core.dll" Private="false" />
+    <Reference Include="$(GameDir)\BepInEx\core\BepInEx.Unity.IL2CPP.dll" Private="false" />
+    <Reference Include="$(GameDir)\BepInEx\core\Il2CppInterop.Runtime.dll" Private="false" />
+    <Reference Include="$(GameDir)\BepInEx\interop\Il2Cppmscorlib.dll" Private="false" />
+    <Reference Include="$(GameDir)\BepInEx\interop\UnityEngine.CoreModule.dll" Private="false" />
+    <Reference Include="$(GameDir)\BepInEx\interop\UnityEngine.UIElementsModule.dll" Private="false" />
+    <Reference Include="$(GameDir)\BepInEx\interop\UnityEngine.ScreenCaptureModule.dll" Private="false" />
+    <Reference Include="$(GameDir)\BepInEx\interop\UnityEngine.TextCoreTextEngineModule.dll" Private="false" Condition="Exists('$(GameDir)\BepInEx\interop\UnityEngine.TextCoreTextEngineModule.dll')" />
+  </ItemGroup>
+</Project>

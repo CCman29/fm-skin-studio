@@ -294,3 +294,8 @@ details.card > summary { cursor: pointer; list-style: revert; }
 .support-btn { font-size: 12px; padding: 4px 10px; border-radius: 8px; color: #ff5e8a; border-color: color-mix(in srgb, #ff5e8a 45%, transparent); flex: none; }
 .support-btn:hover:not(:disabled) { background: #ff5e8a; color: #fff; border-color: #ff5e8a; }
 .support-btn.compact { width: 30px; padding: 4px 0; font-size: 14px; }
+
+/* Game Link status */
+.gl-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--line); flex: none; }
+.gl-dot.idle { background: #d9a520; }
+.gl-dot.on { background: #2fbf71; box-shadow: 0 0 0 3px color-mix(in srgb, #2fbf71 25%, transparent); }

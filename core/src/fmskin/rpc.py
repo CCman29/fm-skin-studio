@@ -35,6 +35,9 @@ METHODS = {
     "editor.shot": "reference_image", "editor.pick": "pick_settings",
     "drafts.open": "draft_open", "drafts.status": "draft_status", "drafts.save": "draft_save", "drafts.discard": "draft_discard", "drafts.dirty": "draft_dirty",
     "settings.skinsFolder": "set_skins_folder", "settings.backupFolder": "set_backup_folder", "packs.share": "share_pack",
+    "gamelink.status": "gamelink_status", "gamelink.install": "gamelink_install", "gamelink.remove": "gamelink_remove",
+    "gamelink.screen": "gamelink_screen", "gamelink.reload": "gamelink_reload", "gamelink.screenshot": "gamelink_screenshot", "gamelink.live": "gamelink_live",
+    "packs.systemText": "system_text", "packs.setSystemText": "set_system_text",
 }
 
 
