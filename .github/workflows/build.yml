@@ -19,7 +19,7 @@ jobs:
         include:
           - os: windows-latest
             target: --win nsis
-          - os: macos-14          # Apple Silicon
+          - os: macos-15          # Apple Silicon
             target: --mac --arm64
           - os: macos-15-intel    # Intel
             target: --mac --x64
@@ -77,7 +77,7 @@ jobs:
         run: |
           mkdir files
           cp out/installers-windows-latest/* files/
-          cp out/installers-macos-14/* files/                      # Apple Silicon, with latest-mac.yml
+          cp out/installers-macos-15/* files/                      # Apple Silicon, with latest-mac.yml
           find out/installers-macos-15-intel -name '*.dmg' -o -name '*.zip' | xargs -I{} cp {} files/
           ls -la files
           gh release create "$GITHUB_REF_NAME" files/* --repo "$GITHUB_REPOSITORY" --title "FM Skin Studio ${GITHUB_REF_NAME#v}"             --notes "Windows: FM-Skin-Studio-Setup-${GITHUB_REF_NAME#v}.exe · Mac: the -arm64.dmg (Apple Silicon) or -x64.dmg (Intel)."
