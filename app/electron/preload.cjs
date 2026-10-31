@@ -10,6 +10,7 @@ contextBridge.exposeInMainWorld("fmskin", {
   openFile: (options) => ipcRenderer.invoke("dialog:open", options),
   saveFile: (options) => ipcRenderer.invoke("dialog:save", options),
   reveal: (p) => ipcRenderer.invoke("shell:reveal", p),
+  openLink: (url) => ipcRenderer.invoke("shell:open", url),
   platform: process.platform,
   windowControl: (action) => ipcRenderer.invoke("win:control", action),
   onMaximized: (fn) => {

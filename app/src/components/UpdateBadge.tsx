@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import type { UpdateCheck } from "../api";
+import { COPYRIGHT, openLink, SUPPORT_URL, type UpdateCheck } from "../api";
 import { useUnsavedGuard } from "./UnsavedGuard";
 
 type Status = { kind: "idle" } | { kind: "checking" } | { kind: "current" } | { kind: "store" } | { kind: "dev" }
@@ -72,6 +72,8 @@ export default function UpdateBadge() {
             {status.kind === "ready" && <div>{installWhenReady ? `Installing version ${status.version}. The app restarts in a moment.`
               : `Version ${status.version} is downloaded and ready to install.`}</div>}
             {status.kind === "error" && <div style={{ color: "var(--err)" }}>Couldn't check for updates: {status.message}</div>}
+            <div className="small muted">Enjoying FM Skin Studio? <button className="link small" onClick={() => openLink(SUPPORT_URL)}>Support
+              its development on Ko-fi</button>. {COPYRIGHT}</div>
             <div className="row">
               {status.kind === "available" && <button className="primary" onClick={async () => {
                 if (!status.canInstall) { await bridge.downloadUpdate?.(); setOpen(false); return; }

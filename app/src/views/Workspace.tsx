@@ -6,6 +6,7 @@ import ThemePicker from "../components/ThemePicker";
 import UpdateBadge from "../components/UpdateBadge";
 import WindowControls from "../components/WindowControls";
 import ExitButton from "../components/ExitButton";
+import SupportButton from "../components/SupportButton";
 import { setPreviewOverrides } from "../components/RealPanel";
 import LightWarningBanner from "../components/LightWarningBanner";
 import { lightWarnings } from "../lightWarnings";
@@ -174,7 +175,7 @@ export default function Workspace({ packId, onClose }: { packId: string; onClose
           {draft?.dirty
             ? <button className="status-chip unsaved" title="Save in Check and Save" onClick={() => setTab("Check and Save")}>● Unsaved</button>
             : <span className="status-chip" title="All changes are saved to your skins folder">{saving ? "Updating…" : "✓ Saved"}</span>}
-          <UpdateBadge /><ThemePicker /><ExitButton /><WindowControls />
+          <SupportButton compact /><UpdateBadge /><ThemePicker /><ExitButton /><WindowControls />
         </div>
       </div>
       <div className="main">

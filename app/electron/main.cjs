@@ -55,6 +55,11 @@ ipcMain.handle("dialog:save", async (_e, options) => {
   return r.canceled ? null : r.filePath;
 });
 ipcMain.handle("shell:reveal", (_e, p) => shell.showItemInFolder(p));
+// Only our own pages open in the browser from the app (support page, releases).
+const OPENABLE = ["https://ko-fi.com/ccman29", "https://github.com/CCman29/fm-skin-studio"];
+ipcMain.handle("shell:open", (_e, url) => {
+  if (typeof url === "string" && OPENABLE.some((u) => url === u || url.startsWith(u + "/"))) shell.openExternal(url);
+});
 
 // Own window frame on Windows/Linux (no menu bar): the app draws its title bar and window buttons.
 ipcMain.handle("win:control", (_e, action) => {

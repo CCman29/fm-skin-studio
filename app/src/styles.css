@@ -267,11 +267,11 @@ details.card > summary { cursor: pointer; list-style: revert; }
 .topbar .grow { min-width: 8px; }
 .icon-btn { width: 30px; height: 30px; padding: 0; border-radius: 8px; font-size: 16px; line-height: 1; flex: none; }
 .skin-name { background: none; border: 1px solid transparent; font-weight: 700; font-size: 15px; padding: 4px 8px; border-radius: 8px;
-  max-width: 220px; overflow: hidden; text-overflow: ellipsis; flex: none; }
+  max-width: 170px; overflow: hidden; text-overflow: ellipsis; flex: none; }
 .skin-name .pencil { margin-left: 6px; font-size: 12px; color: var(--muted); opacity: 0; transition: opacity .15s; }
 .skin-name:hover { border-color: var(--line); } .skin-name:hover .pencil { opacity: 1; }
-.tabs { display: flex; gap: 4px; padding: 3px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; flex: none; }
-.tabs button { background: none; border: none; border-radius: 7px; padding: 6px 10px; font-size: 13px; font-weight: 500; color: var(--muted);
+.tabs { display: flex; gap: 2px; padding: 3px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; flex: none; }
+.tabs button { background: none; border: none; border-radius: 7px; padding: 6px 9px; font-size: 13px; font-weight: 500; color: var(--muted);
   white-space: nowrap; transition: background .12s, color .12s; }
 .tabs button:hover:not(.active) { color: var(--text); background: color-mix(in srgb, var(--text) 7%, transparent); }
 .tabs button.active { background: var(--accent-2); color: var(--on-accent); font-weight: 600; box-shadow: 0 1px 6px color-mix(in srgb, var(--accent-2) 45%, transparent); }
@@ -283,10 +283,14 @@ details.card > summary { cursor: pointer; list-style: revert; }
 /* top bar layout: left items | tabs (shrink and scroll if needed) | right group (never hidden: window buttons live here) */
 .topbar .tabs { min-width: 0; flex: 0 1 auto; overflow-x: auto; scrollbar-width: none; }
 .topbar .tabs::-webkit-scrollbar { display: none; }
-.top-right { display: flex; align-items: center; gap: 8px; margin-left: auto; flex: none; height: 100%; }
+.top-right { display: flex; align-items: center; gap: 6px; margin-left: auto; flex: none; height: 100%; }
 .top-right .theme-picker select { max-width: 112px; }
 .exit-btn { font-size: 12px; padding: 4px 10px; border-radius: 8px; color: var(--muted); }
 .exit-btn:hover:not(:disabled) { color: #fff; background: #c42b1c; border-color: #c42b1c; }
 .brand { flex: none; }
 
 .top-right.roomy .theme-picker select { max-width: 180px; }  /* Home has room for full theme names */
+
+.support-btn { font-size: 12px; padding: 4px 10px; border-radius: 8px; color: #ff5e8a; border-color: color-mix(in srgb, #ff5e8a 45%, transparent); flex: none; }
+.support-btn:hover:not(:disabled) { background: #ff5e8a; color: #fff; border-color: #ff5e8a; }
+.support-btn.compact { width: 30px; padding: 4px 0; font-size: 14px; }

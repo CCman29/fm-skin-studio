@@ -1,7 +1,7 @@
 {
   "name": "fm-skin-studio",
   "productName": "FM Skin Studio",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Build Football Manager 27 skin packs: colours, bars, backgrounds, fonts and panel layouts.",
   "private": true,
   "main": "electron/main.cjs",
@@ -34,11 +34,11 @@
     "electron@33.2.1": true,
     "esbuild@0.21.5": true
   },
-  "author": "FM Skin Studio",
+  "author": "MaterGames",
   "build": {
     "appId": "com.fmskinstudio.app",
     "productName": "FM Skin Studio",
-    "copyright": "FM Skin Studio. Not affiliated with Sports Interactive or SEGA.",
+    "copyright": "\u00a9 2026 MaterGames. Not affiliated with Sports Interactive or SEGA.",
     "directories": {
       "output": "release",
       "buildResources": "build"
@@ -110,5 +110,6 @@
       "backgroundColor": "#07122a"
     }
   },
-  "repository": "https://github.com/CCman29/fm-skin-studio"
+  "repository": "https://github.com/CCman29/fm-skin-studio",
+  "license": "SEE LICENSE IN ../LICENSE"
 }

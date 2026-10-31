@@ -8,6 +8,7 @@ interface Bridge {
   openFile(options?: object): Promise<string[] | null>;
   saveFile(options?: object): Promise<string | null>;
   reveal(path: string): Promise<void>;
+  openLink?(url: string): Promise<void>;
   platform?: string;
   windowControl?(action: "minimize" | "maximize" | "close" | "state"): Promise<{ maximized: boolean; platform: string } | null>;
   onMaximized?(fn: (maximized: boolean) => void): () => void;
@@ -61,6 +62,13 @@ export async function pickSavePath(defaultPath: string,
 }
 
 export function reveal(path: string) { window.fmskin?.reveal(path); }
+
+export const SUPPORT_URL = "https://ko-fi.com/ccman29";
+export const COPYRIGHT = "© 2026 MaterGames";
+/** Opens one of our own pages (support page, releases) in the user's browser. */
+export function openLink(url: string) {
+  if (window.fmskin?.openLink) window.fmskin.openLink(url); else window.open(url, "_blank", "noopener");
+}
 
 // ---- shapes returned by the core -----------------------------------------------------------------
 export interface Paths {

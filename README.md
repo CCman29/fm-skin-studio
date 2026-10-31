@@ -39,3 +39,9 @@ python -m pytest -q
 - Layouts are stored inside the pack and only copied to the game's `CustomGridCompositions` on an explicit
   apply, after backing up the player's files (`restore-layouts` undoes it).
 - Packs and exports contain only the creator's files — never game assets.
+
+## Support
+
+If FM Skin Studio is useful to you, you can support its development on [Ko-fi](https://ko-fi.com/ccman29).
+
+© 2026 MaterGames. See [LICENSE](LICENSE).

@@ -1,0 +1,12 @@
+Copyright (c) 2026 MaterGames. All rights reserved.
+
+FM Skin Studio is free to download and use. The source code is published so you can see how it works, but no
+permission is granted to copy, modify, redistribute or sell it, in whole or in part, without written permission
+from MaterGames.
+
+Bundled third-party components keep their own licences, including the fonts in core/src/fmskin/fonts (SIL Open
+Font License 1.1, see core/src/fmskin/fonts/licenses), Electron, React and the Python libraries listed in the
+build files.
+
+FM Skin Studio is not affiliated with or endorsed by Sports Interactive or SEGA. Football Manager is a trademark of
+its owners.
