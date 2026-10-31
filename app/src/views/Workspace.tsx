@@ -5,6 +5,7 @@ import ScreenCanvas from "../components/ScreenCanvas";
 import ThemePicker from "../components/ThemePicker";
 import UpdateBadge from "../components/UpdateBadge";
 import WindowControls from "../components/WindowControls";
+import ExitButton from "../components/ExitButton";
 import { setPreviewOverrides } from "../components/RealPanel";
 import LightWarningBanner from "../components/LightWarningBanner";
 import { lightWarnings } from "../lightWarnings";
@@ -169,12 +170,12 @@ export default function Workspace({ packId, onClose }: { packId: string; onClose
         <button className="icon-btn" title="Back to your skins (unsaved changes are kept)" onClick={onClose}>←</button>
         <button className="skin-name" title="Rename this skin" onClick={rename}>{pack?.name ?? packId}<span className="pencil">✎</span></button>
         <nav className="tabs">{TABS.map((t) => <button key={t} className={t === tab ? "active" : ""} onClick={() => setTab(t)}>{t}</button>)}</nav>
-        <div className="grow" />
-        {draft?.dirty
-          ? <button className="status-chip unsaved" title="Save in Check and Save" onClick={() => setTab("Check and Save")}>● Unsaved</button>
-          : <span className="status-chip" title="All changes are saved to your skins folder">{saving ? "Updating…" : "✓ Saved"}</span>}
-        <UpdateBadge /><ThemePicker />
-        <WindowControls />
+        <div className="top-right">
+          {draft?.dirty
+            ? <button className="status-chip unsaved" title="Save in Check and Save" onClick={() => setTab("Check and Save")}>● Unsaved</button>
+            : <span className="status-chip" title="All changes are saved to your skins folder">{saving ? "Updating…" : "✓ Saved"}</span>}
+          <UpdateBadge /><ThemePicker /><ExitButton /><WindowControls />
+        </div>
       </div>
       <div className="main">
         {!pack || !tokens.length ? <div className="muted">Loading…</div> : <>

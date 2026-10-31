@@ -245,7 +245,7 @@ details.card > summary { cursor: pointer; list-style: revert; }
 .topbar { -webkit-app-region: drag; user-select: none; }
 .topbar button, .topbar select, .topbar input, .topbar a, .topbar label, .topbar .tabs { -webkit-app-region: no-drag; }
 :root[data-platform="darwin"] .topbar { padding-left: 84px; }  /* room for the macOS traffic lights */
-.win-controls { display: flex; align-self: stretch; margin-right: -16px; margin-left: 8px; }
+.win-controls { display: flex; align-self: stretch; margin-right: -12px; margin-left: 4px; }
 .win-controls button { width: 46px; border: none; border-radius: 0; background: transparent; color: var(--text); padding: 0;
   font-family: "Segoe Fluent Icons", "Segoe MDL2 Assets", sans-serif; font-size: 10px; }
 .win-controls button:hover { background: color-mix(in srgb, var(--text) 12%, transparent); }
@@ -271,7 +271,7 @@ details.card > summary { cursor: pointer; list-style: revert; }
 .skin-name .pencil { margin-left: 6px; font-size: 12px; color: var(--muted); opacity: 0; transition: opacity .15s; }
 .skin-name:hover { border-color: var(--line); } .skin-name:hover .pencil { opacity: 1; }
 .tabs { display: flex; gap: 4px; padding: 3px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; flex: none; }
-.tabs button { background: none; border: none; border-radius: 7px; padding: 6px 12px; font-size: 13px; font-weight: 500; color: var(--muted);
+.tabs button { background: none; border: none; border-radius: 7px; padding: 6px 10px; font-size: 13px; font-weight: 500; color: var(--muted);
   white-space: nowrap; transition: background .12s, color .12s; }
 .tabs button:hover:not(.active) { color: var(--text); background: color-mix(in srgb, var(--text) 7%, transparent); }
 .tabs button.active { background: var(--accent-2); color: var(--on-accent); font-weight: 600; box-shadow: 0 1px 6px color-mix(in srgb, var(--accent-2) 45%, transparent); }
@@ -279,3 +279,12 @@ details.card > summary { cursor: pointer; list-style: revert; }
 .status-chip.unsaved { color: var(--warn); border-color: var(--warn); background: var(--warn-bg); }
 .theme-picker select { max-width: 150px; }
 .update-badge, .theme-picker, .win-controls { flex: none; }
+
+/* top bar layout: left items | tabs (shrink and scroll if needed) | right group (never hidden: window buttons live here) */
+.topbar .tabs { min-width: 0; flex: 0 1 auto; overflow-x: auto; scrollbar-width: none; }
+.topbar .tabs::-webkit-scrollbar { display: none; }
+.top-right { display: flex; align-items: center; gap: 8px; margin-left: auto; flex: none; height: 100%; }
+.top-right .theme-picker select { max-width: 112px; }
+.exit-btn { font-size: 12px; padding: 4px 10px; border-radius: 8px; color: var(--muted); }
+.exit-btn:hover:not(:disabled) { color: #fff; background: #c42b1c; border-color: #c42b1c; }
+.brand { flex: none; }

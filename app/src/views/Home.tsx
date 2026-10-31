@@ -5,6 +5,7 @@ import ThemePicker from "../components/ThemePicker";
 import UpdateBadge from "../components/UpdateBadge";
 import { useUnsavedGuard } from "../components/UnsavedGuard";
 import WindowControls from "../components/WindowControls";
+import ExitButton from "../components/ExitButton";
 
 export default function Home({ onOpen }: { onOpen: (id: string) => void }) {
   const toast = useToast();
@@ -68,8 +69,8 @@ export default function Home({ onOpen }: { onOpen: (id: string) => void }) {
 
   return (
     <div className="app">
-      <div className="topbar"><img src="./icon.png" alt="" className="brand-icon" /><div className="brand">FM <span>Skin Studio</span></div><div className="grow" />
-        <UpdateBadge /><ThemePicker /><span className="muted small">Football Manager 27</span><WindowControls /></div>
+      <div className="topbar"><img src="./icon.png" alt="" className="brand-icon" /><div className="brand">FM <span>Skin Studio</span></div>
+        <div className="top-right"><UpdateBadge /><ThemePicker /><ExitButton /><WindowControls /></div></div>
       <div className="main">
         {coreDown && <div className="card" style={{ marginBottom: 16, borderColor: "var(--err)" }}>
           The engine isn't responding. {window.fmskin ? "Restart the app." : "Start it with: npm run dev:core"}</div>}
