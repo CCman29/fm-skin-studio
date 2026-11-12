@@ -23,6 +23,8 @@ SHEET = """
 .tab--active { border-bottom-color: var(--colours-alpha-light-80); }
 .help-icon { -unity-background-image-tint-color: rgb(255, 255, 255); }
 .big-button { background-color: var(--accent-fill); }
+.sitile { background-color: var(--colours-alpha-light-4); }
+.sitile:hover { background-color: var(--colours-alpha-light-8); }
 """
 
 
@@ -54,7 +56,9 @@ def test_light_theme_writes_only_into_the_pack(skins_root):
     assert ".list-divider { border-bottom-color: rgba(55, 0, 60" in surfaces
     assert ".help-icon { -unity-background-image-tint-color: var(--global-text-primary); }" in surfaces
     assert ".big-button SIText" in surfaces  # white text inside the dark fill
-    assert stats["washes"] == 1 and stats["onDark"] == 1
+    assert ".sitile { background-color: var(--layout-modules-tiles-background); }" in surfaces  # tiles stay solid
+    assert ".sitile:hover { background-color: rgba(55, 0, 60" in surfaces
+    assert stats["washes"] == 3 and stats["onDark"] == 1
     tweaks = pack.screen_sheet("lighttweaks")
     assert ".secondary-navigation-tab-text" in tweaks and ".continue-button SIText" in tweaks  # both dark
     assert "panels: a picture" not in tweaks  # no panel texture yet

@@ -40,6 +40,8 @@ ALPHA_LIGHT = re.compile(r"var\(--colours-alpha-light-(?:alpha-)?(\d+)\)")
 NOT_ICON = re.compile(r"card|frame|surface|panel|backdrop|block|background-image|scroll|dragger|bib-colour", re.I)
 BORDERS = ("border-color", "border-top-color", "border-bottom-color", "border-left-color", "border-right-color")
 SELECTION = re.compile(r"active|selected|checked|focus|current")
+# a whole tile or card (no state, no descendant): FM's faint white tint is its only surface, over a dark backdrop
+CONTAINER = re.compile(r"\.(sitile|[\w-]*-tile|[\w-]*-card)")
 TEXT, TEXT_SOFT = "var(--global-text-primary)", "var(--global-text-secondary)"
 
 # FM27 tokens that draw icons, outlines and chart lines white or pale lavender
@@ -194,7 +196,10 @@ def surface_sheet(index, game_tokens: dict, overrides: dict, text: str, highligh
                         lines.append(f"{sel} {{ {d.name}: {_rgba(t, a)}; }}")
             elif d.name == "background-color":
                 m = ALPHA_LIGHT.fullmatch(v)
-                if m and int(m.group(1)) >= 4:
+                if m and CONTAINER.fullmatch(sel):  # whole tiles/cards FM tints faintly: the skin's tile colour
+                    seen.add(key)
+                    washes.append(f"{sel} {{ background-color: var(--layout-modules-tiles-background); }}")
+                elif m and int(m.group(1)) >= 4:
                     seen.add(key)
                     washes.append(f"{sel} {{ background-color: {_rgba(t, min(0.04 + int(m.group(1)) / 100 * 0.3, 0.26))}; }}")
                 elif re.search(r"divider|separator|(^|[-_])line([-_]|$)", sel) and neutral_light(v):
@@ -215,7 +220,9 @@ def surface_sheet(index, game_tokens: dict, overrides: dict, text: str, highligh
 
 def fixes_sheet(*, sub_bar_dark: bool, continue_dark: bool, menu_colour: str, panel_texture: str | None = None) -> str:
     """Hand-checked fixes (in game, White Sky Sports Light and EPL White) for parts the rules above can't reach."""
-    m = "rgb({}, {}, {})".format(*_rgb(menu_colour))
+    menu = _rgb(menu_colour)
+    m = "rgb({}, {}, {})".format(*menu)
+    hover = "rgb({}, {}, {})".format(*(round(c * 0.8) for c in menu))  # a darker shade of the menu colour
     out = [
         "/* Managed by FM Skin Studio (light theme): fixes checked in game. */",
         ".si-dropdown__selection-arrow, .siscrollview--repeat-button { -unity-background-image-tint-color: var(--global-text-primary); }",
@@ -229,7 +236,7 @@ def fixes_sheet(*, sub_bar_dark: bool, continue_dark: bool, menu_colour: str, pa
         ".cascading-menu__folder__entry SIImage { -unity-background-image-tint-color: var(--global-text-primary); }",
         f".sub-dropdown-content-container {{ background-color: {m}; }}",
         ".sub-dropdown-content-container * { color: rgb(255, 255, 255); -unity-background-image-tint-color: rgb(255, 255, 255); }",
-        ".sub-dropdown-content-container:hover:enabled { background-color: var(--brand-theme-primary); }",
+        f".sub-dropdown-content-container:hover:enabled {{ background-color: {hover}; }}",
         ".sub-dropdown-content-container SIText, .sub-dropdown-content-container .sitext, .sub-dropdown-content-container .body-md,",
         ".si-dropdown .sub-dropdown-content-container .body-md, .sub-dropdown-content-container .fm-menu-dropdown-row SIText,",
         ".sub-dropdown-content-container .fm-menu-dropdown-row .body-md { color: rgb(255, 255, 255); }",

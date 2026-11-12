@@ -292,9 +292,23 @@ def install(package: Path, game_root: Path, backup_root: Path, skins_root: Path,
         nc = manifest["nameColours"]
         patched, changed = patch_names(bundle, nc["colour"], nc.get("background", "#ffffff"))
         rel = bundle.relative_to(game_root)
+        source = bundle
+        if not changed:
+            # Nothing left to recolour: an earlier install already changed this file. Backing it up now would save
+            # the changed file as the "original" (a restore would then change nothing), so keep the true original
+            # from that earlier backup instead, and leave the game file as it is.
+            source = _find_original(rel, backup_root, _sha(bundle))
+            if source is None:
+                shutil.rmtree(backup, ignore_errors=True)
+                raise PackError("FM27's name colours were already changed by an earlier skin install, and that install's "
+                                f"backup isn't in {backup_root}. Restore that backup first (or let your store repair FM27), "
+                                "then install again.")
+            log(f"Name colours are already applied; keeping the original file from {source.parents[len(rel.parts)].name}")
+            patched = None
         (backup / "game-files" / rel).parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(bundle, backup / "game-files" / rel)
-        record["files"].append({"path": str(rel), "sha256": _sha(bundle), "changed": changed})
+        shutil.copy2(source, backup / "game-files" / rel)
+        record["files"].append({"path": str(rel), "sha256": _sha(source), "original": True, "changed": changed,
+                                "patchedSha256": hashlib.sha256(patched).hexdigest() if patched else _sha(bundle)})
     if skin_dir.exists():
         shutil.copytree(skin_dir, backup / "previous-skin" / skin_dir.name)
         record["previousSkin"] = str(backup / "previous-skin" / skin_dir.name)
@@ -329,6 +343,29 @@ def install(package: Path, game_root: Path, backup_root: Path, skins_root: Path,
     return {"backup": str(backup), "skin": str(skin_dir), "patched": [f["path"] for f in record["files"]]}
 
 
+def _is_original(entry: dict) -> bool:
+    """A backup entry holds the game's untouched file (older installers also backed up already-changed files)."""
+    return bool(entry.get("original") or entry.get("changed"))
+
+
+def _find_original(rel: Path, backup_root: Path, patched_sha: str | None = None) -> Path | None:
+    """The untouched copy of a game file kept by an earlier backup in the same folder (newest first). With
+    patched_sha, only a backup whose install produced exactly that file counts (when it recorded it)."""
+    for rec_file in sorted(backup_root.glob(f"*/{RECORD_FILE}"), key=lambda p: p.parent.name, reverse=True):
+        try:
+            rec = json.loads(rec_file.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        for entry in rec.get("files") or []:
+            copy = rec_file.parent / "game-files" / entry["path"]
+            if Path(entry["path"]) != Path(rel) or not _is_original(entry) or not copy.is_file():
+                continue
+            if patched_sha and entry.get("patchedSha256") and entry["patchedSha256"] != patched_sha:
+                continue
+            return copy
+    return None
+
+
 def restore(backup: Path, log=print) -> dict:
     """Put back everything a backup holds: game files, and the skin folder as it was (or remove the added one)."""
     record_file = backup / RECORD_FILE
@@ -340,9 +377,17 @@ def restore(backup: Path, log=print) -> dict:
     game = Path(record["game"])
     for f in record["files"]:
         src = backup / "game-files" / f["path"]
-        dst = game / f["path"]
         if not src.is_file():
             raise PackError(f"The backup is missing {f['path']}")
+        if not _is_original(f):
+            # made by an older installer over an already-changed file: its copy isn't the original
+            src = _find_original(Path(f["path"]), backup.parent)
+            if src is None:
+                raise PackError(f"This backup was made after {f['path']} had already been changed, so it can't put the "
+                                "original back, and no earlier backup with the original is next to it. Let your store "
+                                "repair FM27 (Xbox app: Manage > Files > Verify and repair; Steam: Verify integrity).")
+            log(f"This backup holds an already-changed copy; using the original from {src.parents[len(Path(f['path']).parts)].name}")
+        dst = game / f["path"]
         log(f"Restoring {f['path']}...")
         shutil.copy2(src, dst)
     skin_dir = Path(record["skinFolder"])
