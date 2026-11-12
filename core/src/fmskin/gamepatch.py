@@ -179,7 +179,8 @@ def _game_objects(bundles: Path, wanted: dict[str, set[str]]) -> dict[str, objec
 def build_game_art(bundles: Path, recipes: list[dict], dest: Path) -> list[str]:
     """Make the skin's files that come from the player's own FM27 (fonts, logos, backgrounds), following the
     package's recipes: [{file, bundle, object, ...steps}]. Steps: crop [x0,y0,x1,y1], lighten (share of the original
-    kept), size [w, h], gradient [from, to, w, h] with logo {object, bundle, size, right} drawn on top."""
+    kept), darken (share of black mixed in), size [w, h], gradient [from, to, w, h]; logo {object, bundle, size,
+    right | align: center, opacity} is drawn on top."""
     from PIL import Image
     wanted: dict[str, set[str]] = {}
     for r in recipes:
@@ -219,12 +220,19 @@ def build_game_art(bundles: Path, recipes: list[dict], dest: Path) -> list[str]:
                 if r.get("size"):
                     im = _cover(im, *r["size"])
             if r.get("logo"):
-                logo_src = objects[r["logo"]["object"]].convert("RGBA")
-                size = int(r["logo"].get("size", im.height - 20))
+                spec = r["logo"]
+                logo_src = objects[spec["object"]].convert("RGBA")
+                size = int(spec.get("size", im.height - 20))
                 logo = logo_src.resize((size, size), Image.LANCZOS)
+                if "opacity" in spec:  # a faint watermark
+                    alpha = logo.getchannel("A").point(lambda v: round(v * float(spec["opacity"])))
+                    logo.putalpha(alpha)
+                x = (im.width - size) // 2 if spec.get("align") == "center" else im.width - size - int(spec.get("right", 150))
                 canvas = im.convert("RGBA")
-                canvas.alpha_composite(logo, (im.width - size - int(r["logo"].get("right", 150)), (im.height - size) // 2))
+                canvas.alpha_composite(logo, (x, (im.height - size) // 2))
                 im = canvas.convert("RGB")
+            if "darken" in r:  # keep backgrounds dark enough behind white panels
+                im = Image.blend(im, Image.new("RGB", im.size, "black"), float(r["darken"]))
             if target.suffix.lower() == ".png":
                 im.save(target)
             else:
