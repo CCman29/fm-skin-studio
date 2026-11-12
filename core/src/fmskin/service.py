@@ -9,7 +9,7 @@ from pathlib import Path
 
 import re
 
-from . import __version__, bars, coded, drafts, fonts, gamedata, index, labels, layouts, logwatch, paths, preview, recipe, screenmap, skinpack, uss, validate
+from . import __version__, bars, coded, drafts, skinpackage, fonts, gamedata, index, labels, layouts, logwatch, paths, preview, recipe, screenmap, skinpack, uss, validate
 from .skinpack import PackError, SkinPack
 
 
@@ -381,6 +381,14 @@ class Service:
             self.set_settings(backupFolder=str(Path(directory)))
         return drafts.save(Path(target) / name, folder, Path(directory) if directory else None)
 
+    def package_options(self, pack: str) -> dict:
+        """What an installer package of the saved skin would contain."""
+        return skinpackage.options_for(self._real_pack(pack))
+
+    def make_package(self, pack: str, dest: str, name_colour: str | None = None, description: str = "") -> str:
+        """An installer package of the saved skin (unsaved edits aren't included)."""
+        return str(skinpackage.make_package(self._real_pack(pack), Path(dest), name_colour or None, description))
+
     def share_pack(self, pack: str, dest: str) -> str:
         """Compress the skin as you see it in the studio into a .zip to share."""
         p = self._pack(pack)
@@ -586,6 +594,17 @@ class Service:
         target = self._pack(pack)
         bars.apply(target, {k: {kk: vv for kk, vv in v.items() if kk != "label"} for k, v in settings.items()})
         return bars.current(target)
+
+    def font_face(self, pack: str, path: str) -> str:
+        """A pack's font file as a data URL, so the preview can draw it."""
+        import base64
+        target = self._pack(pack)
+        file = (target.path / path).resolve()
+        if file.suffix.lower() not in (".ttf", ".otf") or target.path.resolve() not in file.parents or not file.is_file():
+            raise PackError(f"No font file {path} in this skin")
+        data = file.read_bytes()
+        mime = "font/otf" if data[:4] == b"OTTO" else "font/ttf"
+        return f"data:{mime};base64,{base64.b64encode(data).decode()}"
 
     def use_builtin_font(self, pack: str, font: str, role: str) -> dict:
         return fonts.use_builtin(self._pack(pack), font, role)

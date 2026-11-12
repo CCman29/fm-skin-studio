@@ -36,6 +36,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install . "pyinstaller>=6.16"
           python -m PyInstaller --noconfirm --distpath pkg --workpath build packaging/fmskin-core.spec
+          python -m PyInstaller --noconfirm --distpath pkg --workpath build packaging/skin-installer.spec   # players' skin installer
 
       - name: Build the installer
         working-directory: app

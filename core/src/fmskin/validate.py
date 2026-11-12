@@ -7,15 +7,17 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from . import contrast, layouts, uss
+from .fonts import _FONT_URL as FONT_URL
 from .skinpack import FONT_EXTS, IMAGE_EXTS, SkinPack
 
 ERROR, WARNING, INFO = "error", "warning", "info"
 
-# Seen in game (FM27, Unity 6000.3.18f1): the skin loader creates fonts from file paths, which the UI text engine
-# rejects ("FontAsset is invalid. Please assign a Source Font File."); text falls back to a wider font and the log
-# fills with warnings. Use one of the game's own fonts (fonts.builtin) until SI fixes it.
-FONT_FILES_BLOCKED = ("FM27 can't load font files from skins yet (game bug): text falls back to a wider font and "
-                      "Player.log fills with warnings. Use one of the game's built-in fonts instead.")
+# Seen in game (FM27 27.0.1): font files render, but Unity's "advanced" text engine (FM uses it for buttons, tooltips and
+# chart labels) refuses fonts loaded from a file, logging "FontAsset is invalid" many times a second. A skin with font
+# files needs those elements on the standard engine (fonts.TEXT_ENGINE_SHEET).
+FONT_ENGINE_MISSING = ("This skin uses font files but doesn't switch FM27's buttons, tooltips and chart labels to the "
+                       "standard text engine (-unity-text-generator: standard), so FM27's log will fill with "
+                       "\"FontAsset is invalid\" warnings. Pick the font in the Fonts tab to add the rule.")
 
 
 @dataclass
@@ -80,8 +82,6 @@ def _check_sheet(pack: SkinPack, rel: str, known_tokens: set[str], local_tokens:
                     out.append(Problem(ERROR, rel, d.line, f"{func}('{target}'): only .png/.jpg/.jpeg/.ttf/.otf load"))
                 elif not asset.is_file():
                     out.append(Problem(ERROR, rel, d.line, f"{func}('{target}') could not be resolved (file missing)"))
-                elif asset.suffix.lower() in FONT_EXTS:
-                    out.append(Problem(ERROR, rel, d.line, FONT_FILES_BLOCKED))
 
 
 def validate_pack(pack: SkinPack, game_tokens: dict | None = None, compositions: list[dict] | None = None) -> list[Problem]:
@@ -123,6 +123,11 @@ def validate_pack(pack: SkinPack, game_tokens: dict | None = None, compositions:
             out.append(Problem(ERROR, "skin.json", 1, f"Sheet '{rel}' isn't a .uss file; the game won't load it"))
         else:
             _check_sheet(pack, rel, known, local, out, seen)
+
+    listed = [pack.path / str(r) for r in sheets if (pack.path / str(r)).is_file()]
+    if any(FONT_URL.search(t) for t in pack.tokens().values()) and not any(
+            "-unity-text-generator: standard" in f.read_text(encoding="utf-8-sig", errors="replace") for f in listed):
+        out.append(Problem(WARNING, "tokens.uss", 0, FONT_ENGINE_MISSING))
 
     for hit in contrast.light_surfaces(pack.tokens(), game_tokens or {}, pack.info.get("bars"), pack.path / "assets" / "images"):
         where = "screen-global.uss" if hit["token"].startswith("bars:") else "tokens.uss"

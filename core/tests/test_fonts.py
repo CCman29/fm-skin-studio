@@ -2,7 +2,7 @@ import pytest
 
 from fmskin import fonts, skinpack
 from fmskin.skinpack import PackError
-from fmskin.validate import FONT_FILES_BLOCKED, validate_pack
+from fmskin.validate import FONT_ENGINE_MISSING, validate_pack
 
 
 def test_catalog_is_complete_and_licensed():
@@ -15,23 +15,30 @@ def test_catalog_is_complete_and_licensed():
         assert f["widthVsDefault"] <= 6  # never noticeably wider than the game's font for that role
 
 
-def test_font_files_refused_while_game_cannot_load_them(skins_root):
+def test_font_file_adds_the_text_engine_rule(skins_root):
     pack = skinpack.create_pack(skins_root, "Fonts")
-    with pytest.raises(PackError):
-        fonts.use_font(pack, "HankenGrotesk", "body")
-
-
-def test_font_file_is_a_validation_error(skins_root):
-    pack = skinpack.create_pack(skins_root, "Fonts")
-    fonts.use_font(pack, "HankenGrotesk", "body", allow_broken=True)
+    fonts.use_font(pack, "HankenGrotesk", "body")
     assert (pack.path / "assets/fonts/HankenGrotesk-Regular.ttf").is_file()
-    assert FONT_FILES_BLOCKED in [p.message for p in validate_pack(pack) if p.severity == "error"]
+    assert "screen-textengine.uss" in pack.sheets()
+    assert fonts.TEXT_ENGINE_RULE in pack.screen_sheet("textengine")
+    problems = validate_pack(pack)
+    assert [p for p in problems if p.severity == "error"] == []
+    assert FONT_ENGINE_MISSING not in [p.message for p in problems]
 
-    fonts.use_font(pack, "ArchivoNarrow", "body", allow_broken=True)  # replacing removes the unused file
+    fonts.use_font(pack, "ArchivoNarrow", "body")  # replacing removes the unused file
     assert not (pack.path / "assets/fonts/HankenGrotesk-Regular.ttf").exists()
-    fonts.reset_font(pack, "body")
+    fonts.reset_font(pack, "body")  # no font files left: the files and the rule go
     assert "--typography-family-primary" not in pack.tokens()
     assert not list((pack.path / "assets/fonts").glob("*.ttf"))
+    assert "screen-textengine.uss" not in pack.sheets()
+
+
+def test_font_file_without_the_rule_is_flagged(skins_root):
+    pack = skinpack.create_pack(skins_root, "Fonts")
+    font = pack.add_asset(fonts.FONT_DIR / "Exo2-Regular.ttf")
+    pack.set_tokens({"--typography-family-primary": font})
+    messages = [p.message for p in validate_pack(pack) if p.severity == "warning"]
+    assert FONT_ENGINE_MISSING in messages
 
 
 def test_builtin_fonts(skins_root):

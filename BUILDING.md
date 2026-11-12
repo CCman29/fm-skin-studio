@@ -60,3 +60,16 @@ macOS refuses to open an unsigned, un-notarised app until the user allows it in 
 
 GitHub Actions secrets used when present: `CSC_LINK` (base64 .p12 or a URL) and `CSC_KEY_PASSWORD` for the signing
 certificate; `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD` and `APPLE_TEAM_ID` for macOS notarisation.
+
+## Skin installer (installer packages)
+
+Check and Save > Installer package turns a skin into "<Skin> Installer.zip": `Install <Skin>.exe`, the skin, and a
+README. The .exe is `core/packaging/skin-installer.spec` (one windowed file that asks for administrator rights), built
+by `npm run build:core` and by the release workflow, and shipped in the app's `resources/installer` folder.
+
+What it does on a player's PC (`core/src/fmskin/gamepatch.py`): finds FM27 (Game Pass, Steam, Epic), copies every game
+file it will change into a backup folder the player picks (with RESTORE.txt), builds any fonts and artwork the skin takes
+from the player's own FM27 (recipes in the skin's `fmskinstudio.json` "fromGame", never shipped in the zip), installs the
+skin, and optionally recolours FM27's club/team/player names in
+`fm_Data/StreamingAssets/aa/StandaloneWindows64/gamemodules_assets_gameworldmatch.bundle`. "Restore a backup" undoes it.
+Windows only for now.

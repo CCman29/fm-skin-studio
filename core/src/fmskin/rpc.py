@@ -24,7 +24,7 @@ METHODS = {
     "packs.addAsset": "add_asset", "packs.validate": "validate", "packs.export": "export_pack",
     "packs.import": "import_pack", "packs.delete": "delete_pack",
     "fonts.catalog": "font_catalog", "packs.useFont": "use_font", "packs.resetFont": "reset_font",
-    "packs.useBuiltinFont": "use_builtin_font", "packs.bars": "bars", "packs.setBars": "set_bars",
+    "packs.useBuiltinFont": "use_builtin_font", "packs.fontFace": "font_face", "packs.bars": "bars", "packs.setBars": "set_bars",
     "tokens.areas": "areas", "tokens.usage": "token_usage", "packs.applyRecipe": "apply_recipe", "recipe.defaults": "recipe_defaults", "recipe.preview": "recipe_preview", "recipe.fields": "recipe_fields",
     "preview.assets": "preview_assets", "preview.panel": "preview_panel", "preview.screen": "preview_screen",
     "layouts.place": "place_panels", "layouts.apply": "apply_layouts", "layouts.backups": "layout_backups",
@@ -34,7 +34,7 @@ METHODS = {
     "packs.image": "pack_image", "preview.localImage": "local_image", "editor.shots": "reference_shots", "editor.setShot": "set_reference_shot",
     "editor.shot": "reference_image", "editor.pick": "pick_settings",
     "drafts.open": "draft_open", "drafts.status": "draft_status", "drafts.save": "draft_save", "drafts.discard": "draft_discard", "drafts.dirty": "draft_dirty",
-    "settings.skinsFolder": "set_skins_folder", "settings.backupFolder": "set_backup_folder", "packs.share": "share_pack",
+    "settings.skinsFolder": "set_skins_folder", "settings.backupFolder": "set_backup_folder", "packs.share": "share_pack", "packs.packageOptions": "package_options", "packs.makePackage": "make_package",
 }
 
 

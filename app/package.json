@@ -1,7 +1,7 @@
 {
   "name": "fm-skin-studio",
   "productName": "FM Skin Studio",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Build Football Manager 27 skin packs: colours, bars, backgrounds, fonts and panel layouts.",
   "private": true,
   "main": "electron/main.cjs",
@@ -11,7 +11,7 @@
     "build:web": "tsc --noEmit && vite build",
     "start": "electron .",
     "typecheck": "tsc --noEmit",
-    "build:core": "cd ../core && python -m PyInstaller --noconfirm --distpath pkg --workpath build packaging/fmskin-core.spec",
+    "build:core": "cd ../core && python -m PyInstaller --noconfirm --distpath pkg --workpath build packaging/fmskin-core.spec && python -m PyInstaller --noconfirm --distpath pkg --workpath build packaging/skin-installer.spec",
     "dist:win": "npm run build:web && electron-builder --win --publish never",
     "dist:mac": "npm run build:web && electron-builder --mac --publish never"
   },
@@ -52,6 +52,13 @@
       {
         "from": "../core/pkg/fmskin-core",
         "to": "core"
+      },
+      {
+        "from": "../core/pkg",
+        "to": "installer",
+        "filter": [
+          "FM27-Skin-Installer.exe"
+        ]
       }
     ],
     "win": {

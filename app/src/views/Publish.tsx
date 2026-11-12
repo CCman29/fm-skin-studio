@@ -215,7 +215,75 @@ export default function Publish({ pack, draft, onChanged }: { pack: Pack; draft:
         <div><button className="primary" onClick={share}>Share as .zip…</button></div>
       </div>
 
+      <InstallerPackage pack={pack} dirty={!!draft?.dirty} />
+
       {SHOW_ADVANCED && <AdvancedChecks pack={pack} draft={draft} onChanged={onChanged} />}
+    </div>
+  );
+}
+
+interface PackageOptions { name: string; folder: string; suggestedColour: string | null; fromGame: string[]; description: string }
+
+/** An installer package of the saved skin: an .exe that finds FM27, backs up what it changes, installs the skin and
+ *  can recolour FM27's club, team and player names; plus a README with install, manual-copy and restore steps. */
+function InstallerPackage({ pack, dirty }: { pack: Pack; dirty: boolean }) {
+  const toast = useToast();
+  const [opts, setOpts] = useState<PackageOptions | null>(null);
+  const [names, setNames] = useState(false);
+  const [colour, setColour] = useState("#37003c");
+  const [description, setDescription] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [made, setMade] = useState<string | null>(null);
+  useEffect(() => {
+    call<PackageOptions>("packs.packageOptions", { pack: pack.id }).then((o) => {
+      setOpts(o); if (o.suggestedColour) setColour(o.suggestedColour); setDescription(o.description);
+    }).catch(() => setOpts(null));
+  }, [pack.id]);
+
+  const make = async () => {
+    const dest = await pickSavePath(`${pack.name} Installer.zip`, [{ name: "Compressed (zipped) folder", extensions: ["zip"] }]);
+    if (!dest) return;
+    setBusy(true);
+    try {
+      const out = await call<string>("packs.makePackage", { pack: pack.id, dest, name_colour: names ? colour : null, description });
+      setMade(out); toast(`Installer package saved: ${out}`); reveal(out);
+    } catch (e) { toast({ text: errorText(e), error: true }); }
+    setBusy(false);
+  };
+
+  return (
+    <div className="card stack">
+      <h2 style={{ margin: 0 }}>Installer package</h2>
+      <div className="small muted">A .zip players download and run. It holds <b>Install {opts?.name ?? pack.name}.exe</b>, the skin and a README.
+        The installer finds FM27 (Game Pass, Steam or Epic), backs up every game file it will change into a folder the player
+        chooses (with RESTORE.txt), installs the skin into their skins folder, and can put everything back later.</div>
+      {dirty && <div className="small" style={{ color: "var(--warn)" }}>The package uses your saved skin: save first to include your latest edits.</div>}
+      <label className="row" style={{ gap: 8 }}>
+        <input type="checkbox" checked={names} onChange={(e) => setNames(e.target.checked)} />
+        <span><b>Recolour club, team and player names</b> for light skins</span></label>
+      {names && <div className="stack" style={{ gap: 6, marginLeft: 26 }}>
+        <div className="row" style={{ gap: 8 }}>
+          <input type="color" className="colour-input" value={colour} onChange={(e) => setColour(e.target.value)} />
+          <span className="mono">{colour}</span><span className="small muted">usually your skin's main text colour</span></div>
+        <div className="small muted">FM27 colours names in its own code, so no skin file can change them. The installer edits one of FM27's
+          own files to do it (backed up first). It applies to every skin until the player restores the backup, and an FM27
+          update puts the original back.</div>
+      </div>}
+      {(opts?.fromGame.length ?? 0) > 0 && <div className="small">
+        <b>Made from the player's own FM27:</b> {opts!.fromGame.map((f) => f.split("/").pop()).join(", ")}. These aren't put in the
+        package; the installer builds them from each player's game.</div>}
+      <label className="field"><span>Description (shown in the installer and README)</span>
+        <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="A short line about your skin" /></label>
+      <div><button className="primary" disabled={busy} onClick={make}>{busy ? "Making the package…" : "Create installer package…"}</button></div>
+      {made && <div className="callout small stack" style={{ gap: 4 }}>
+        <b>Saved: {made}</b>
+        <span>What players do: extract the zip, close FM27, run <b>Install {opts?.name ?? pack.name}.exe</b> (Windows asks for permission),
+          check the FM27 install it found, choose a backup folder, click Install. Then pick the skin in FM27's Preferences.</span>
+        <span>Where things go: the skin into <span className="mono">Documents\Sports Interactive\Football Manager 27\skins\{opts?.folder}</span>
+          {names && <>; the name colours into FM27's game folder, file <span className="mono">fm_Data\StreamingAssetsa\StandaloneWindows64\gamemodules_assets_gameworldmatch.bundle</span></>}.</span>
+        <span>To undo: run the installer again and choose "Restore a backup", or follow RESTORE.txt in the backup folder, or use the
+          store's Verify/repair. The same steps are in the package's README.txt, including how to copy the skin by hand.</span>
+      </div>}
     </div>
   );
 }

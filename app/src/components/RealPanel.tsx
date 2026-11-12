@@ -43,9 +43,30 @@ function loadBase(): Promise<CSSStyleSheet> {
   return baseSheet;
 }
 
-/** The pack's token overrides applied on top of the game's theme in every preview. */
-export function setPreviewOverrides(overrides: Record<string, string>) {
-  const body = Object.entries(overrides).map(([k, v]) => `${k}: ${v};`).join(" ");
+// font files a skin ships, loaded into the page once so the preview can draw them
+const loadedFaces = new Map<string, Promise<void>>();
+const FONT_URL = /url\(\s*["']?([^"')]+\.(?:ttf|otf))["']?\s*\)/i;
+const faceName = (path: string) => `FMSkin-${path.replace(/[^\w]+/g, "-")}`;
+
+function ensureFace(packId: string, path: string): Promise<void> {
+  const key = `${packId}|${path}`;
+  if (!loadedFaces.has(key)) {
+    loadedFaces.set(key, call<string>("packs.fontFace", { pack: packId, path }).then((url) => {
+      const style = document.createElement("style");
+      style.textContent = `@font-face { font-family: '${faceName(path)}'; src: url(${url}); }`;
+      document.head.appendChild(style);
+    }).catch(() => { loadedFaces.delete(key); }));
+  }
+  return loadedFaces.get(key)!;
+}
+
+/** The pack's token overrides applied on top of the game's theme in every preview. Font files are drawn too. */
+export function setPreviewOverrides(overrides: Record<string, string>, packId?: string) {
+  const body = Object.entries(overrides).map(([k, v]) => {
+    const font = v.match(FONT_URL);
+    if (font && packId) { ensureFace(packId, font[1]); return `${k}: '${faceName(font[1])}';`; }
+    return `${k}: ${v};`;
+  }).join(" ");
   overrideSheet.replaceSync(`.fm-root { ${body} }`);
 }
 

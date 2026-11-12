@@ -73,7 +73,7 @@ export default function Workspace({ packId, onClose }: { packId: string; onClose
 
   // colours being tried in Global settings (not applied yet) show on top of the pack's own settings
   const [trial, setTrial] = useState<{ tokens: Record<string, string>; bars: Record<string, BarSetting> } | null>(null);
-  useEffect(() => setPreviewOverrides(trial ? { ...overrides, ...trial.tokens } : overrides), [overrides, trial]);
+  useEffect(() => setPreviewOverrides(trial ? { ...overrides, ...trial.tokens } : overrides, packId), [overrides, trial, packId]);
   const defaults = useMemo(() => Object.fromEntries(tokens.map((t) => [t.name, t.default])), [tokens]);
   const value = useCallback((name: string): string => {
     let cur = name, guard = 0;

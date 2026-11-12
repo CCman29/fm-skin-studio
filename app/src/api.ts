@@ -94,6 +94,6 @@ export interface ScreenDetail extends Omit<ScreenRow, "panels"> { panels: Panel[
 export interface BarSetting { mode: "club" | "solid" | "gradient" | "image"; colours?: string[]; angle?: string;
   stripes?: boolean; stripeColour?: string; source?: string; label?: string }
 export interface FontCatalog { fontFilesWork: boolean; defaults: Record<string, string>;
-  fonts: { id: string; family: string; role: string; widthVsDefault: number; lineHeightVsDefault: number; license: string }[];
+  fonts: { id: string; family: string; role: string; file: string; widthVsDefault: number; lineHeightVsDefault: number; license: string }[];
   builtin: { id: string; family: string; token: string; note: string }[] }
 export interface LogEvent { kind: string; skin: string | null; detail: string; offset: number }
