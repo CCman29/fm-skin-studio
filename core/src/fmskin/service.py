@@ -9,7 +9,7 @@ from pathlib import Path
 
 import re
 
-from . import __version__, bars, coded, drafts, skinpackage, fonts, gamedata, index, labels, layouts, logwatch, paths, preview, recipe, screenmap, skinpack, uss, validate
+from . import __version__, attributecolours, bars, coded, lighttheme, drafts, skinpackage, fonts, gamedata, index, labels, layouts, logwatch, paths, preview, recipe, screenmap, skinpack, uss, validate
 from .skinpack import PackError, SkinPack
 
 
@@ -566,7 +566,34 @@ class Service:
 
     def apply_recipe(self, pack: str, palette: dict) -> dict:
         """Full theme from a palette: panels, text, tabs, Continue button, processing card, Tactics screen, bars."""
-        return recipe.apply(self._pack(pack), recipe.Palette.from_json(palette))
+        p = recipe.Palette.from_json(palette)
+        target = self._pack(pack)
+        result = recipe.apply(target, p)
+        if lighttheme.is_light(p.panel):  # white text can't be read on these panels: colour what FM27 draws white
+            result["lightTheme"] = lighttheme.apply(target, self._idx(), self._game_tokens(), text=p.text, highlight=p.highlight,
+                                                    menu_colour=p.accent, sub_bar=p.sub_bar[0], continue_colour=p.continue_colour)
+        else:
+            lighttheme.remove(target, self._game_tokens())
+        return result
+
+    def light_theme(self, pack: str) -> dict | None:
+        """A light skin's settings (text, highlight, panel texture), or None for a dark skin."""
+        return self._pack(pack).info.get("lightTheme")
+
+    def set_panel_texture(self, pack: str, file: str | None = None) -> dict:
+        """Put a picture (e.g. a fabric or paper texture) on a light skin's panels, or take it off (file=None)."""
+        return lighttheme.reapply(self._pack(pack), self._idx(), self._game_tokens(),
+                                  panel_texture=file or lighttheme.NO_TEXTURE)
+
+    def attribute_colours(self, pack: str) -> dict:
+        """A skin's suggested attribute colours (FM27 keeps the real ones in the player's preferences)."""
+        bands = attributecolours.get(self._pack(pack))
+        return {"bands": bands, "warnings": attributecolours.warnings(bands) if bands else [],
+                "instructions": attributecolours.instructions(bands) if bands else ""}
+
+    def set_attribute_colours(self, pack: str, bands: list[dict] | None = None) -> dict:
+        attributecolours.set_for(self._pack(pack), bands)
+        return self.attribute_colours(pack)
 
     def recipe_preview(self, palette: dict) -> dict:
         """The settings a palette would set, for a live preview: nothing is written."""

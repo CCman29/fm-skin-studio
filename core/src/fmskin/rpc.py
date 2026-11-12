@@ -35,6 +35,8 @@ METHODS = {
     "editor.shot": "reference_image", "editor.pick": "pick_settings",
     "drafts.open": "draft_open", "drafts.status": "draft_status", "drafts.save": "draft_save", "drafts.discard": "draft_discard", "drafts.dirty": "draft_dirty",
     "settings.skinsFolder": "set_skins_folder", "settings.backupFolder": "set_backup_folder", "packs.share": "share_pack", "packs.packageOptions": "package_options", "packs.makePackage": "make_package",
+    "packs.lightTheme": "light_theme", "packs.setPanelTexture": "set_panel_texture",
+    "packs.attributeColours": "attribute_colours", "packs.setAttributeColours": "set_attribute_colours",
 }
 
 

@@ -18,7 +18,7 @@ button.primary { background: var(--accent-2); border-color: var(--accent-2); col
 button.primary:hover:not(:disabled) { background: var(--accent); }
 button.danger { border-color: color-mix(in srgb, var(--err) 40%, transparent); color: var(--err); }
 button.link { background: none; border: none; color: var(--accent); padding: 0; }
-input[type=text], input[type=search], select, textarea { background: var(--bg-2); border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; }
+input[type=text], input[type=search], input[type=number], select, textarea { background: var(--bg-2); border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; }
 textarea { font-family: Consolas, "Cascadia Mono", monospace; font-size: 13px; }
 h1, h2, h3 { margin: 0 0 8px; } h2 { font-size: 18px; } h3 { font-size: 15px; color: var(--muted); font-weight: 600; }
 .muted { color: var(--muted); } .small { font-size: 12px; }

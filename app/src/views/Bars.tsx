@@ -53,6 +53,18 @@ export default function Bars({ packId, bars, setBars, focus, preview, banner, on
     const file = await pickFiles([{ name: "Pictures", extensions: ["png", "jpg", "jpeg"] }]);
     if (file) update({ mode: "image", source: file });
   };
+  // light skins only: a picture (fabric, paper...) on the panels instead of flat white
+  const [light, setLight] = useState<{ panelTexture: string | null } | null>(null);
+  useEffect(() => { call<{ panelTexture: string | null } | null>("packs.lightTheme", { pack: packId }).then(setLight).catch(() => setLight(null)); }, [packId]);
+  const setTexture = async (pick: boolean) => {
+    const file = pick ? await pickFiles([{ name: "Pictures", extensions: ["png", "jpg", "jpeg"] }]) : null;
+    if (pick && !file) return;
+    try {
+      const r = await call<{ panelTexture: string | null }>("packs.setPanelTexture", { pack: packId, file });
+      setLight((l) => ({ ...(l ?? {}), panelTexture: r.panelTexture }));
+      toast(pick ? "Texture on the panels. Press Save skin in Check and Save to put it in FM27." : "Texture removed");
+    } catch (e) { toast({ text: errorText(e), error: true }); }
+  };
 
   const s = draft[area] ?? { mode: "club" as const };
   const colours = s.colours ?? ["#003322", "#00664a"];
@@ -101,6 +113,18 @@ export default function Bars({ packId, bars, setBars, focus, preview, banner, on
               <span className="note mono">{s.source ? s.source.split(/[\/]/).pop() : "Uses the picture already in the skin"}</span></>}
           </div>
         </details>
+        {light && <details className="section" open>
+          <summary>Panel texture</summary>
+          <div className="body">
+            <div className="note">Your panels are light, so they can carry a subtle picture such as fabric or paper instead of flat
+              white. Pick a light, low-contrast picture so text stays easy to read. It isn't drawn in this preview.</div>
+            <div className="row wrap">
+              <button onClick={() => setTexture(true)}>{light.panelTexture ? "Replace texture…" : "Choose texture…"}</button>
+              {light.panelTexture && <button className="link small" onClick={() => setTexture(false)}>Remove texture</button>}
+            </div>
+            {light.panelTexture && <span className="note mono">{light.panelTexture.split("/").pop()}</span>}
+          </div>
+        </details>}
         <div className="apply-bar">
           <button className="primary" disabled={busy} onClick={apply}>{busy ? "Applying…" : "Apply bars & backgrounds"}</button>
           <span className="note">Applied changes are saved with your other changes in Check and Save.</span>

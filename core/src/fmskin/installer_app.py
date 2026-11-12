@@ -14,7 +14,7 @@ import sys
 import threading
 from pathlib import Path
 
-from . import gamepatch, paths
+from . import attributecolours, gamepatch, paths
 from .skinpack import PackError
 
 
@@ -54,6 +54,10 @@ def run_gui(pkg: Path) -> None:
                        "This edits one of the game's own files, which is backed up first.")
     if manifest.get("fromGame"):
         changes.append("Some of the skin's artwork and fonts are made from your own copy of FM27.")
+    bands = manifest.get("attributeColours") or []
+    if bands:
+        changes.append("The skin suggests attribute colours. FM27 keeps those in your own Preferences, so the installer "
+                       "can't set them; it lists the values to enter when it's done (they're also in README.txt).")
     ttk.Label(root, text=(about + "\n\n" if about else "") + "\n".join("•  " + c for c in changes),
               wraplength=680, justify="left").pack(anchor="w", **pad)
 
@@ -113,7 +117,9 @@ def run_gui(pkg: Path) -> None:
                 r = gamepatch.install(pkg, Path(game_var.get()), Path(backup_var.get()), Path(skins_var.get()), log=say)
                 root.after(0, lambda: messagebox.showinfo(name, f"{name} is installed.\n\nIn FM27, open Preferences and choose "
                     f"'{name}' as the skin.\n\nYour backup is in:\n{r['backup']}\n\nTo undo everything, run this installer "
-                    "again and choose 'Restore a backup', or follow RESTORE.txt in that folder."))
+                    "again and choose 'Restore a backup', or follow RESTORE.txt in that folder."
+                    + ("\n\nAttribute colours (Preferences > Attribute Colours):\n" + "\n".join(attributecolours.lines(bands))
+                       if bands else "")))
             except (PackError, OSError) as e:
                 msg = str(e)
                 if isinstance(e, PermissionError):

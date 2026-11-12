@@ -16,7 +16,7 @@ import sys
 import zipfile
 from pathlib import Path
 
-from . import gamepatch
+from . import attributecolours, gamepatch
 from .skinpack import MARKER, PackError, SkinPack
 
 INSTALLER_NAME = "FM27-Skin-Installer.exe"
@@ -51,7 +51,7 @@ MANUAL INSTALL (skin only)
 {manual_note}
 UNINSTALL
   Restore your backup (above), or delete the skins\\{folder} folder and pick another skin in Preferences.
-"""
+{attributes}"""
 
 
 def _slug(text: str) -> str:
@@ -82,7 +82,8 @@ def options_for(pack: SkinPack) -> dict:
     """What a package of this skin would do, for the studio to show before making one."""
     info = pack.info
     return {"name": pack.name, "folder": pack.path.name, "suggestedColour": _hex(pack.tokens().get("--global-text-primary")),
-            "fromGame": [r["file"] for r in info.get("fromGame") or []], "description": info.get("description", "")}
+            "fromGame": [r["file"] for r in info.get("fromGame") or []], "description": info.get("description", ""),
+            "attributeColours": attributecolours.get(pack)}
 
 
 def make_package(pack: SkinPack, dest: Path, name_colour: str | None = None, description: str = "",
@@ -99,6 +100,9 @@ def make_package(pack: SkinPack, dest: Path, name_colour: str | None = None, des
                 "description": description or info.get("description", ""), "fromGame": from_game}
     if name_colour:
         manifest["nameColours"] = {"colour": name_colour.lower(), "background": "#ffffff"}
+    bands = attributecolours.get(pack)
+    if bands:
+        manifest["attributeColours"] = bands
 
     changes = ["  - Copies the skin into your FM27 skins folder (Documents\\Sports Interactive\\Football Manager 27\\skins)."]
     if name_colour:
@@ -112,7 +116,8 @@ def make_package(pack: SkinPack, dest: Path, name_colour: str | None = None, des
               "  and some pictures or fonts will be missing. Use the installer for the full skin.\n") if (name_colour or from_game) else ""
     readme = README.format(name=pack.name, description=manifest["description"], changes="\n".join(changes) + "\n",
                            admin_note=" (Steam installs live in Program Files)" if name_colour else "",
-                           folder=pack.path.name, manual_note=manual)
+                           folder=pack.path.name, manual_note=manual,
+                           attributes=("\n" + attributecolours.instructions(bands)) if bands else "")
 
     dest.parent.mkdir(parents=True, exist_ok=True)
     top = f"{name} Installer"

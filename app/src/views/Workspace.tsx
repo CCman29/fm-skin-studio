@@ -10,6 +10,7 @@ import SupportButton from "../components/SupportButton";
 import { setPreviewOverrides } from "../components/RealPanel";
 import LightWarningBanner from "../components/LightWarningBanner";
 import { lightWarnings } from "../lightWarnings";
+import AttributeColours from "./AttributeColours";
 import Bars from "./Bars";
 import Fonts from "./Fonts";
 import GamePainted from "./GamePainted";
@@ -19,7 +20,7 @@ import ScreenEditor from "./ScreenEditor";
 import Screens from "./Screens";
 
 // "Screens & layouts" (the full list of ~1,800 layouts) is hidden for now; its code is kept in Screens.tsx.
-const TABS = ["Global settings", "Bars & backgrounds", "Fonts", "Game-painted areas", "Advanced Editor", "Check and Save"] as const;
+const TABS = ["Global settings", "Bars & backgrounds", "Fonts", "Attribute colours", "Game-painted areas", "Advanced Editor", "Check and Save"] as const;
 const SHOW_LAYOUTS_TAB = false;
 type Tab = (typeof TABS)[number] | "Screens & layouts";
 export interface DraftStatus { open: boolean; dirty: boolean; resumed?: boolean; backupFolder?: string | null;
@@ -190,6 +191,7 @@ export default function Workspace({ packId, onClose }: { packId: string; onClose
           {tab === "Bars & backgrounds" && <Bars packId={packId} bars={bars} setBars={setBars} focus={focus} preview={preview} banner={banner}
             onDiscard={async () => setBars(await call<Record<string, BarSetting>>("packs.bars", { pack: packId }))} onArea={setBarArea} />}
           {tab === "Fonts" && fonts && <Fonts catalog={fonts} theme={theme} packId={packId} preview={preview} />}
+          {tab === "Attribute colours" && <AttributeColours packId={packId} theme={theme} />}
           {SHOW_LAYOUTS_TAB && tab === "Screens & layouts" && <Screens packId={packId} onChanged={reloadPack} target={screenTarget} />}
           {tab === "Check and Save" && <Publish pack={pack} draft={draft} onChanged={async () => {
             await reloadPack(); setBars(await call<Record<string, BarSetting>>("packs.bars", { pack: packId })); refreshDraft(); }} />}
